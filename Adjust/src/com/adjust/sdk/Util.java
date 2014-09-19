@@ -25,7 +25,9 @@ import static com.adjust.sdk.Constants.XLARGE;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,6 +37,7 @@ import org.json.JSONObject;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -45,6 +48,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+
+import com.adjust.sdk.plugin.AndroidServiceLoader;
+import com.adjust.sdk.plugin.Extension;
 
 /**
  * Collects utility functions used by Adjust.
@@ -337,5 +343,22 @@ public class Util {
         final BigInteger bigInt = new BigInteger(1, bytes);
         final String formatString = "%0" + (bytes.length << 1) + "x";
         return String.format(formatString, bigInt);
+    }
+
+    public static Map<String, String> getPluginKeys(Context context) {
+        Map<String, String> pluginKeys = new HashMap<String, String>();
+
+        for (Extension extension : AndroidServiceLoader.load(Extension.class, context)) {
+            Map.Entry<String, String> pluginEntry = extension.getParameter(context);
+            if (pluginEntry != null) {
+                pluginKeys.put(pluginEntry.getKey(), pluginEntry.getValue());
+            }
+        }
+
+        if (pluginKeys.size() == 0) {
+            return null;
+        } else {
+            return pluginKeys;
+        }
     }
 }
