@@ -254,6 +254,7 @@ public class PackageBuilder {
     private Map<String, String> getDefaultParameters() {
         Map<String, String> parameters = new HashMap<String, String>();
 
+
         // general
         addDate(parameters, "created_at", createdAt);
         addString(parameters, "app_token", appToken);
@@ -268,6 +269,7 @@ public class PackageBuilder {
         Boolean isTrackingEnabled = Util.isPlayTrackingEnabled(context);
         addBoolean(parameters, "tracking_enabled", isTrackingEnabled);
         fillPluginKeys(parameters);
+        checkDeviceIds(parameters);
 
         // session related (used for events as well)
         addInt(parameters, "session_count", sessionCount);
@@ -276,6 +278,17 @@ public class PackageBuilder {
         addDuration(parameters, "time_spent", timeSpent);
 
         return parameters;
+    }
+
+    private void checkDeviceIds(Map<String, String> parameters) {
+        if (!parameters.containsKey("mac_sha1")
+            && !parameters.containsKey("mac_md5")
+            && !parameters.containsKey("android_id")
+            && !parameters.containsKey("gps_adid"))
+        {
+            Logger logger = AdjustFactory.getLogger();
+            logger.error("Missing device id's. Please check if Proguard is correctly set with Adjust SDK");
+        }
     }
 
     private void fillPluginKeys(Map<String, String> parameters) {
