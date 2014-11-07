@@ -56,7 +56,6 @@ public class ActivityHandler extends HandlerThread {
     private        ActivityState            activityState;
     private        Logger                   logger;
     private static ScheduledExecutorService timer;
-    private        String                   defaultTracker;
     private        boolean                  dropOfflineActivities;
     private        boolean                  enabled;
 
@@ -147,7 +146,7 @@ public class ActivityHandler extends HandlerThread {
     }
 
     private static final class SessionHandler extends Handler {
-        private static final int INIT = 72630;
+        private static final int INIT        = 72630;
         private static final int START       = 72640;
         private static final int END         = 72650;
         private static final int EVENT       = 72660;
@@ -235,6 +234,10 @@ public class ActivityHandler extends HandlerThread {
             String macAddress = Util.getMacAddress(adjustConfig.context);
             deviceInfo.macSha1 = Util.getMacSha1(macAddress);
             deviceInfo.macShortMd5 = Util.getMacShortMd5(macAddress);
+        }
+
+        if (adjustConfig.defaultTracker != null) {
+            logger.info("Default tracker: '%s'", adjustConfig.defaultTracker);
         }
 
         packageHandler = AdjustFactory.getPackageHandler(this, adjustConfig.context, dropOfflineActivities);
@@ -592,6 +595,7 @@ public class ActivityHandler extends HandlerThread {
         }
     }
 
+    // TODO validate if this is equal with an offline mode
     private void setDropOfflineActivities(boolean drop) {
         dropOfflineActivities = drop;
         if (dropOfflineActivities) {
