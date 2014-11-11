@@ -23,6 +23,17 @@ import static com.adjust.sdk.Constants.SMALL;
 import static com.adjust.sdk.Constants.UNKNOWN;
 import static com.adjust.sdk.Constants.XLARGE;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OptionalDataException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
@@ -35,6 +46,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.HttpResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -52,6 +64,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 import com.adjust.sdk.plugin.Plugin;
 
@@ -271,18 +284,6 @@ public class Util {
         return dateFormat.format(date);
     }
 
-
-    public static JSONObject buildJsonObject(String jsonString) {
-        JSONObject jsonObject = null;
-
-        try {
-            jsonObject = new JSONObject(jsonString);
-        } catch (JSONException e){
-        }
-
-        return jsonObject;
-    }
-
     public static String getPlayAdId(Context context) {
         return Reflection.getPlayAdId(context);
     }
@@ -377,4 +378,87 @@ public class Util {
 
         return plugins;
     }
+
+    public static <T> T readObject(Context context, String filename, String objectName) {
+        Logger logger = AdjustFactory.getLogger();
+        try {
+            FileInputStream inputStream = context.openFileInput(filename);
+            BufferedInputStream bufferedStream = new BufferedInputStream(inputStream);
+            ObjectInputStream objectStream = new ObjectInputStream(bufferedStream);
+
+            try {
+                T t = (T) objectStream.readObject();
+                logger.debug("Read %s: %s uuid:%s", objectName, t);
+                return t;
+            } catch (ClassNotFoundException e) {
+                logger.error("Failed to find activity state class");
+            } catch (OptionalDataException e) {
+                /* no-op */
+            } catch (IOException e) {
+                logger.error("Failed to read %s object", objectName);
+            } catch (ClassCastException e) {
+                logger.error("Failed to cast %s object", objectName);
+            } finally {
+                objectStream.close();
+            }
+
+        } catch (FileNotFoundException e) {
+            logger.verbose("%s file not found", objectName);
+        } catch (Exception e) {
+            logger.error("Failed to open %s file for reading (%s)", objectName, e);
+        }
+
+        return null;
+    }
+
+    public static <T> void writeObject(T object, Context context, String filename, String objectName) {
+        Logger logger = AdjustFactory.getLogger();
+        try {
+            FileOutputStream outputStream = context.openFileOutput(filename, Context.MODE_PRIVATE);
+            BufferedOutputStream bufferedStream = new BufferedOutputStream(outputStream);
+            ObjectOutputStream objectStream = new ObjectOutputStream(bufferedStream);
+
+            try {
+                objectStream.writeObject(object);
+                logger.debug("Wrote %s: %s", objectName, object);
+            } catch (NotSerializableException e) {
+                logger.error("Failed to serialize %s", objectName);
+            } finally {
+                objectStream.close();
+            }
+
+        } catch (Exception e) {
+            logger.error("Failed to open %s for writing (%s)", objectName, e);
+        }
+    }
+
+    public static String parseResponse(HttpResponse httpResponse, Logger logger) {
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            httpResponse.getEntity().writeTo(out);
+            out.close();
+            String response =  out.toString().trim();
+            logger.verbose("Response: %s", response);
+            return response;
+        } catch (Exception e) {
+            logger.error("Failed to parse response (%s)", e);
+            return null;
+        }
+    }
+
+    public static JSONObject buildJsonObject(String jsonString) {
+        if (jsonString == null) return null;
+
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            return jsonObject;
+        } catch (JSONException e){
+            Logger logger = AdjustFactory.getLogger();
+            logger.error("Failed to parse json response: %s (%s)", jsonString, e.getMessage());
+        }
+
+        return null;
+    }
+
+
 }
