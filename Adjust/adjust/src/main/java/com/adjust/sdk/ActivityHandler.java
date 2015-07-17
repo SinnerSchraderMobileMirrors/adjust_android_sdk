@@ -118,6 +118,10 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
 
     @Override
     public void trackSubsessionEnd() {
+        if (activityState == null) {
+            trackSubsessionStart();
+        }
+
         Message message = Message.obtain();
         message.arg1 = SessionHandler.END;
         sessionHandler.sendMessage(message);
