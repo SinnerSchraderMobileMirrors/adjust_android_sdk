@@ -92,4 +92,9 @@ public class MockActivityHandler implements IActivityHandler {
         return null;
     }
 
+    @Override
+    public void launchDeeplinkMain(String deeplink) {
+        testLogger.test(prefix + "launchDeeplinkMain, " + deeplink);
+    }
+
 }

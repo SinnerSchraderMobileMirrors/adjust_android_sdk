@@ -329,6 +329,29 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         sessionHandler.sendMessage(message);
     }
 
+    public void launchDeeplinkMain(String deeplink) {
+        if (deeplink == null) return;
+
+        Uri location = Uri.parse(deeplink);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, location);
+        mapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        // Verify it resolves
+        PackageManager packageManager = adjustConfig.context.getPackageManager();
+        List<ResolveInfo> activities = packageManager.queryIntentActivities(mapIntent, 0);
+        boolean isIntentSafe = activities.size() > 0;
+
+        // Start an activity if it's safe
+        if (!isIntentSafe) {
+            logger.error("Unable to open deep link (%s)", deeplink);
+            return;
+        }
+
+        logger.info("Open deep link (%s)", deeplink);
+        adjustConfig.context.startActivity(mapIntent);
+    }
+
+
     private static final class SessionHandler extends Handler {
         private static final int BASE_ADDRESS = 72630;
         private static final int INIT = BASE_ADDRESS + 1;
@@ -555,12 +578,6 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
     }
 
     private void finishedTrackingActivityInternal(JSONObject jsonResponse) {
-        if (jsonResponse == null) {
-            return;
-        }
-
-        String deeplink = jsonResponse.optString("deeplink", null);
-        launchDeeplinkMain(deeplink);
         attributionHandler.checkResponse(jsonResponse);
     }
 
@@ -692,28 +709,6 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
         } else {
             packageHandler.resumeSending();
         }
-    }
-
-    private void launchDeeplinkMain(String deeplink) {
-        if (deeplink == null) return;
-
-        Uri location = Uri.parse(deeplink);
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW, location);
-        mapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        // Verify it resolves
-        PackageManager packageManager = adjustConfig.context.getPackageManager();
-        List<ResolveInfo> activities = packageManager.queryIntentActivities(mapIntent, 0);
-        boolean isIntentSafe = activities.size() > 0;
-
-        // Start an activity if it's safe
-        if (!isIntentSafe) {
-            logger.error("Unable to open deep link (%s)", deeplink);
-            return;
-        }
-
-        logger.info("Open deep link (%s)", deeplink);
-        adjustConfig.context.startActivity(mapIntent);
     }
 
     private boolean updateActivityState(long now) {

@@ -97,6 +97,9 @@ public class AttributionHandler implements IAttributionHandler {
     private void checkAttributionInternal(JSONObject jsonResponse) {
         if (jsonResponse == null) return;
 
+        String deeplink = jsonResponse.optString("deeplink", null);
+        activityHandler.launchDeeplinkMain(deeplink);
+
         JSONObject attributionJson = jsonResponse.optJSONObject("attribution");
         AdjustAttribution attribution = AdjustAttribution.fromJson(attributionJson);
 

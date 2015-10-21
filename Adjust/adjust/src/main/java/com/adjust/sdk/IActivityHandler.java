@@ -33,4 +33,7 @@ public interface IActivityHandler {
     public void setAskingAttribution(boolean askingAttribution);
 
     public ActivityPackage getAttributionPackage();
+
+    public void launchDeeplinkMain(String deeplink);
+
 }
