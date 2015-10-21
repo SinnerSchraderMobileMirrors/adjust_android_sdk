@@ -178,7 +178,7 @@ public class TestAttributionHandler extends ActivityInstrumentationTestCase2<Uni
             fail(e.getMessage());
         }
 
-        attributionHandler.checkAttribution(askInJsonResponse);
+        attributionHandler.checkResponse(askInJsonResponse);
 
         SystemClock.sleep(3000);
 

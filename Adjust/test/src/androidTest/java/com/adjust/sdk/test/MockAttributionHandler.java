@@ -37,8 +37,8 @@ public class MockAttributionHandler implements IAttributionHandler {
     }
 
     @Override
-    public void checkAttribution(JSONObject jsonResponse) {
-        testLogger.test(prefix + "checkAttribution");
+    public void checkResponse(JSONObject jsonResponse) {
+        testLogger.test(prefix + "checkResponse");
 
         this.lastJsonResponse = jsonResponse;
     }

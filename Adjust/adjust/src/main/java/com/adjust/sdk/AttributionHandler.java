@@ -61,7 +61,7 @@ public class AttributionHandler implements IAttributionHandler {
     }
 
     @Override
-    public void checkAttribution(final JSONObject jsonResponse) {
+    public void checkResponse(final JSONObject jsonResponse) {
         scheduler.submit(new Runnable() {
             @Override
             public void run() {

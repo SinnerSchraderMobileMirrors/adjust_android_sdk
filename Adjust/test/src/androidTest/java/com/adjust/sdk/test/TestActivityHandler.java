@@ -864,7 +864,7 @@ public class TestActivityHandler extends ActivityInstrumentationTestCase2<UnitTe
         SystemClock.sleep(1000);
 
         // if the response is null
-        assertUtil.notInTest("AttributionHandler checkAttribution");
+        assertUtil.notInTest("AttributionHandler checkResponse");
         assertUtil.notInError("Unable to open deep link");
         assertUtil.notInInfo("Open deep link");
 
@@ -884,7 +884,7 @@ public class TestActivityHandler extends ActivityInstrumentationTestCase2<UnitTe
         assertUtil.error("Unable to open deep link (wrongDeeplink://)");
 
         // and it check the attribution
-        assertUtil.test("AttributionHandler checkAttribution");
+        assertUtil.test("AttributionHandler checkResponse");
         // TODO add test that opens url
 
         // checking the default values of the first session package

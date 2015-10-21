@@ -561,7 +561,7 @@ public class ActivityHandler extends HandlerThread implements IActivityHandler {
 
         String deeplink = jsonResponse.optString("deeplink", null);
         launchDeeplinkMain(deeplink);
-        attributionHandler.checkAttribution(jsonResponse);
+        attributionHandler.checkResponse(jsonResponse);
     }
 
     private void sendReferrerInternal(String referrer, long clickTime) {
