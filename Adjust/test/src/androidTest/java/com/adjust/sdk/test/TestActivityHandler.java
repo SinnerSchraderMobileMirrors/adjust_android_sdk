@@ -722,6 +722,27 @@ public class TestActivityHandler extends ActivityInstrumentationTestCase2<UnitTe
         checkNewSession(false, 3, 1, true);
     }
 
+    private void checkReadOpenUrl(IActivityHandler activityHandler, String urlString, boolean packageAdded) {
+        long now = System.currentTimeMillis();
+
+        Uri url = null;
+
+        if (urlString != null) {
+            url = Uri.parse(urlString);
+        }
+
+        activityHandler.readOpenUrl(url, now);
+        SystemClock.sleep(1000);
+        if (url == null) {
+            checkQueryString(null, "deeplink", packageAdded);
+            return;
+        }
+
+        String queryString = url.getQuery();
+
+        checkQueryString(queryString, "deeplink", packageAdded);
+    }
+
     public void testOpenUrl() {
         // assert test name to read better in logcat
         mockLogger.Assert("TestActivityHandler testOpenUrl");
@@ -743,34 +764,27 @@ public class TestActivityHandler extends ActivityInstrumentationTestCase2<UnitTe
         // test first session start
         checkFirstSession();
 
-        Uri attributions = Uri.parse("AdjustTests://example.com/path/inApp?adjust_tracker=trackerValue&other=stuff&adjust_campaign=campaignValue&adjust_adgroup=adgroupValue&adjust_creative=creativeValue");
-        Uri extraParams = Uri.parse("AdjustTests://example.com/path/inApp?adjust_foo=bar&other=stuff&adjust_key=value");
-        Uri mixed = Uri.parse("AdjustTests://example.com/path/inApp?adjust_foo=bar&other=stuff&adjust_campaign=campaignValue&adjust_adgroup=adgroupValue&adjust_creative=creativeValue");
-        Uri emptyQueryString = Uri.parse("AdjustTests://");
-        Uri emptyString = Uri.parse("");
-        Uri nullUri = null;
-        Uri single = Uri.parse("AdjustTests://example.com/path/inApp?adjust_foo");
-        Uri prefix = Uri.parse("AdjustTests://example.com/path/inApp?adjust_=bar");
-        Uri incomplete = Uri.parse("AdjustTests://example.com/path/inApp?adjust_foo=");
+        String attributions = "AdjustTests://example.com/path/inApp?adjust_tracker=trackerValue&other=stuff&adjust_campaign=campaignValue&adjust_adgroup=adgroupValue&adjust_creative=creativeValue";
+        String extraParams = "AdjustTests://example.com/path/inApp?adjust_foo=bar&other=stuff&adjust_key=value";
+        String mixed = "AdjustTests://example.com/path/inApp?adjust_foo=bar&other=stuff&adjust_campaign=campaignValue&adjust_adgroup=adgroupValue&adjust_creative=creativeValue";
+        String emptyQueryString = "AdjustTests://";
+        String emptyString = "";
+        String nullUri = null;
+        String single = "AdjustTests://example.com/path/inApp?adjust_foo";
+        String prefix = "AdjustTests://example.com/path/inApp?adjust_=bar";
+        String incomplete = "AdjustTests://example.com/path/inApp?adjust_foo=";
 
-        long now = System.currentTimeMillis();
-
-        activityHandler.readOpenUrl(attributions, now);
-        activityHandler.readOpenUrl(extraParams, now);
-        activityHandler.readOpenUrl(mixed, now);
-        activityHandler.readOpenUrl(emptyQueryString, now);
-        activityHandler.readOpenUrl(emptyString, now);
-        activityHandler.readOpenUrl(nullUri, now);
-        activityHandler.readOpenUrl(single, now);
-        activityHandler.readOpenUrl(prefix, now);
-        activityHandler.readOpenUrl(incomplete, now);
+        checkReadOpenUrl(activityHandler, attributions, true);
+        checkReadOpenUrl(activityHandler, extraParams, true);
+        checkReadOpenUrl(activityHandler, mixed, true);
+        checkReadOpenUrl(activityHandler, emptyQueryString, false);
+        checkReadOpenUrl(activityHandler, emptyString, false);
+        checkReadOpenUrl(activityHandler, nullUri, false);
+        checkReadOpenUrl(activityHandler, single, false);
+        checkReadOpenUrl(activityHandler, prefix, false);
+        checkReadOpenUrl(activityHandler, incomplete, false);
 
         SystemClock.sleep(1000);
-
-        // three click packages: attributions, extraParams and mixed
-        for (int i = 3; i > 0; i--) {
-            assertUtil.test("PackageHandler addPackage");
-        }
 
         // checking the default values of the first session package
         // 1 session + 3 click
