@@ -14,6 +14,7 @@ import com.adjust.sdk.AdjustConfig;
 import com.adjust.sdk.AdjustEvent;
 import com.adjust.sdk.AdjustFactory;
 import com.adjust.sdk.Constants;
+import com.adjust.sdk.IActivityHandler;
 import com.adjust.sdk.LogLevel;
 import com.adjust.sdk.OnAttributionChangedListener;
 
@@ -1150,6 +1151,29 @@ public class TestActivityHandler extends ActivityInstrumentationTestCase2<UnitTe
         checkNewSession(false, 2, 0);
     }
 
+    private void checkQueryString(String queryString, String source, boolean packageAdded) {
+        if (queryString == null) {
+            assertUtil.notInVerbose("Reading query string (%s) from %s", queryString, source);
+            assertUtil.notInTest("PackageHandler addPackage");
+            return;
+        }
+        assertUtil.verbose("Reading query string (%s) from %s", queryString, source);
+
+        if (!packageAdded) {
+            assertUtil.notInTest("PackageHandler addPackage");
+            return;
+        }
+        assertUtil.test("PackageHandler addPackage");
+    }
+
+    private void checkSendReferrer(IActivityHandler activityHandler, String queryString, boolean packageAdded) {
+        long now = System.currentTimeMillis();
+
+        activityHandler.sendReferrer(queryString, now);
+        SystemClock.sleep(1000);
+        checkQueryString(queryString, Constants.REFTAG, packageAdded);
+    }
+
     public void testSendReferrer() {
         // assert test name to read better in logcat
         mockLogger.Assert("TestActivityHandler testSendReferrer");
@@ -1168,8 +1192,6 @@ public class TestActivityHandler extends ActivityInstrumentationTestCase2<UnitTe
         // test first session start
         checkFirstSession();
 
-        long now = System.currentTimeMillis();
-
         String reftag = "adjust_reftag=referrerValue";
         String extraParams = "adjust_foo=bar&other=stuff&adjust_key=value";
         String mixed = "adjust_foo=bar&other=stuff&adjust_reftag=referrerValue";
@@ -1179,31 +1201,15 @@ public class TestActivityHandler extends ActivityInstrumentationTestCase2<UnitTe
         String prefix = "adjust_=bar";
         String incomplete = "adjust_foo=";
 
-        activityHandler.sendReferrer(reftag, now);
-        SystemClock.sleep(1000);
-        activityHandler.sendReferrer(extraParams, now);
-        SystemClock.sleep(1000);
-        activityHandler.sendReferrer(mixed, now);
-        SystemClock.sleep(1000);
-        activityHandler.sendReferrer(empty, now);
-        SystemClock.sleep(1000);
-        activityHandler.sendReferrer(nullString, now);
-        SystemClock.sleep(1000);
-        activityHandler.sendReferrer(single, now);
-        SystemClock.sleep(1000);
-        activityHandler.sendReferrer(prefix, now);
-        SystemClock.sleep(1000);
-        activityHandler.sendReferrer(incomplete, now);
-        SystemClock.sleep(1000);
+        checkSendReferrer(activityHandler, reftag, true);
+        checkSendReferrer(activityHandler, extraParams, true);
+        checkSendReferrer(activityHandler, mixed, true);
 
-        // three click packages: reftag, extraParams and mixed
-        for (int i = 3; i > 0; i--) {
-            //assertUtil.test("AttributionHandler getAttribution");
-            assertUtil.test("PackageHandler addPackage");
-        }
-
-        // check that it did not send any other click package
-        assertUtil.notInTest("PackageHandler sendClickPackage");
+        checkSendReferrer(activityHandler, empty, false);
+        checkSendReferrer(activityHandler, nullString, false);
+        checkSendReferrer(activityHandler, single, false);
+        checkSendReferrer(activityHandler, prefix, false);
+        checkSendReferrer(activityHandler, incomplete, false);
 
         // checking the default values of the first session package
         // 1 session + 3 click
