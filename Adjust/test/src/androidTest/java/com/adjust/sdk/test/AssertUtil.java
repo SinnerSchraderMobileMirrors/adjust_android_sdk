@@ -116,6 +116,11 @@ public class AssertUtil {
                 expected, actual);
     }
 
+    public void isEqual(Object field, Object value) {
+        Assert.assertEquals(mockLogger.toString(),
+                value, field);
+    }
+
     public void fail() {
         Assert.fail(mockLogger.toString());
     }

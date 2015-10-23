@@ -66,6 +66,22 @@ public class MockHttpsURLConnection extends HttpsURLConnection {
                             "\"click_label\"   : \"clValue\" } }");
         } else if (responseType == ResponseType.ASK_IN) {
             return getMockResponse("{ \"ask_in\" : 4000 }");
+        } else if (responseType == ResponseType.DEEP_LINK) {
+            return getMockResponse(
+                    "{ \"attribution\" : {" +
+                            "\"tracker_token\" : \"ttValue\" , " +
+                            "\"tracker_name\"  : \"tnValue\" , " +
+                            "\"network\"       : \"nValue\" , " +
+                            "\"campaign\"      : \"cpValue\" , " +
+                            "\"adgroup\"       : \"aValue\" , " +
+                            "\"creative\"      : \"ctValue\" , " +
+                            "\"click_label\"   : \"clValue\" , " +
+                            "\"deeplink\"      : \"AdjustTests://example.com/path/inApp?" +
+                                "adjust_foo=bar&" +
+                                "other=stuff&" +
+                                "adjust_campaign=campaignValue&" +
+                                "adjust_adgroup=adgroupValue&" +
+                                "adjust_creative=creativeValue\" } }");
         }
 
         return null;

@@ -122,8 +122,8 @@ public class TestAttributionHandler extends ActivityInstrumentationTestCase2<Uni
         AttributionHandler attributionHandler = new AttributionHandler(mockActivityHandler,
                 attributionPackage, false, true);
 
-        String response = "Response: { \"attribution\" : " +
-                "{\"tracker_token\" : \"ttValue\" , " +
+        String response = "Response: { \"attribution\" : {" +
+                "\"tracker_token\" : \"ttValue\" , " +
                 "\"tracker_name\"  : \"tnValue\" , " +
                 "\"network\"       : \"nValue\" , " +
                 "\"campaign\"      : \"cpValue\" , " +
@@ -132,6 +132,9 @@ public class TestAttributionHandler extends ActivityInstrumentationTestCase2<Uni
                 "\"click_label\"   : \"clValue\" } }";
 
         callCheckAttributionWithGet(attributionHandler, ResponseType.ATTRIBUTION, response);
+
+        // check that the deep link was sent to activity handler
+        assertUtil.test("ActivityHandler launchDeeplinkMain, null");
 
         // check attribution was called without ask_in
         assertUtil.test("ActivityHandler tryUpdateAttribution, tt:ttValue tn:tnValue net:nValue cam:cpValue adg:aValue cre:ctValue cl:clValue");
@@ -146,6 +149,66 @@ public class TestAttributionHandler extends ActivityInstrumentationTestCase2<Uni
         assertUtil.notInDebug("Waiting to query attribution");
     }
 
+    public void testDeeplink() {
+        // assert test name to read better in logcat
+        mockLogger.Assert("TestAttributionHandler testDeeplink");
+
+        AttributionHandler attributionHandler = new AttributionHandler(mockActivityHandler,
+                attributionPackage, false, true);
+
+        String response = "Response: { \"attribution\" : {" +
+                "\"tracker_token\" : \"ttValue\" , " +
+                "\"tracker_name\"  : \"tnValue\" , " +
+                "\"network\"       : \"nValue\" , " +
+                "\"campaign\"      : \"cpValue\" , " +
+                "\"adgroup\"       : \"aValue\" , " +
+                "\"creative\"      : \"ctValue\" , " +
+                "\"click_label\"   : \"clValue\" , " +
+                "\"deeplink\"      : \"AdjustTests://example.com/path/inApp?" +
+                    "adjust_foo=bar&" +
+                    "other=stuff&" +
+                    "adjust_campaign=campaignValue&" +
+                    "adjust_adgroup=adgroupValue&" +
+                    "adjust_creative=creativeValue\" } }";
+
+        callCheckAttributionWithGet(attributionHandler, ResponseType.DEEP_LINK, response);
+
+        // check that the deep link was sent to activity handler
+        assertUtil.test("ActivityHandler launchDeeplinkMain, AdjustTests://example.com/path/inApp?adjust_foo=bar&other=stuff&adjust_campaign=campaignValue&adjust_adgroup=adgroupValue&adjust_creative=creativeValue");
+
+        // check attribution was called without ask_in
+        assertUtil.test("ActivityHandler tryUpdateAttribution, tt:ttValue tn:tnValue net:nValue cam:cpValue adg:aValue cre:ctValue cl:clValue");
+
+        // updated set askingAttribution to false
+        assertUtil.test("ActivityHandler setAskingAttribution, false");
+
+        // and waiting for query
+        assertUtil.notInDebug("Waiting to query attribution");
+    }
+
+    public void testNullCheckResponse() {
+        // assert test name to read better in logcat
+        mockLogger.Assert("TestAttributionHandler testDeeplink");
+
+        AttributionHandler attributionHandler = new AttributionHandler(mockActivityHandler,
+                attributionPackage, false, true);
+
+        attributionHandler.checkResponse(null);
+
+        // check that the deep link was sent to activity handler
+        assertUtil.notInTest("ActivityHandler launchDeeplinkMain");
+
+        // check attribution was called without ask_in
+        assertUtil.notInTest("ActivityHandler tryUpdateAttribution");
+
+        // updated set askingAttribution to false
+        assertUtil.notInTest("ActivityHandler setAskingAttribution");
+
+        // and waiting for query
+        assertUtil.notInDebug("Waiting to query attribution");
+    }
+
+
     public void testAskIn() {
         // assert test name to read better in logcat
         mockLogger.Assert("TestAttributionHandler testAskIn");
@@ -159,6 +222,9 @@ public class TestAttributionHandler extends ActivityInstrumentationTestCase2<Uni
 
         // change the response to avoid a cycle;
         mockHttpsURLConnection.responseType = ResponseType.MESSAGE;
+
+        // check that the deep link was sent to activity handler
+        assertUtil.test("ActivityHandler launchDeeplinkMain, null");
 
         // check attribution was called with ask_in
         assertUtil.notInTest("ActivityHandler tryUpdateAttribution");
@@ -181,6 +247,9 @@ public class TestAttributionHandler extends ActivityInstrumentationTestCase2<Uni
         attributionHandler.checkResponse(askInJsonResponse);
 
         SystemClock.sleep(3000);
+
+        // check that the deep link was sent to activity handler
+        assertUtil.test("ActivityHandler launchDeeplinkMain, null");
 
         // it did update to true
         assertUtil.test("ActivityHandler setAskingAttribution, true");
@@ -294,6 +363,9 @@ public class TestAttributionHandler extends ActivityInstrumentationTestCase2<Uni
 
         // the message in the response
         assertUtil.error("testResponseError");
+
+        // check that the deep link was sent to activity handler
+        assertUtil.test("ActivityHandler launchDeeplinkMain, null");
 
         // check attribution was called without ask_in
         assertUtil.test("ActivityHandler tryUpdateAttribution, null");

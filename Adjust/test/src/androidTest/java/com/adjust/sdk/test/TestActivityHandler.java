@@ -895,12 +895,11 @@ public class TestActivityHandler extends ActivityInstrumentationTestCase2<UnitTe
         activityHandler.finishedTrackingActivity(wrongDeeplinkResponse);
         SystemClock.sleep(1000);
 
-        // check that it was unable to open the url
-        assertUtil.error("Unable to open deep link (wrongDeeplink://)");
-
-        // and it check the attribution
+        // check that it send to attribution handler
         assertUtil.test("AttributionHandler checkResponse");
-        // TODO add test that opens url
+
+        // see if it saved the same object that was send
+        assertUtil.isEqual(wrongDeeplinkResponse, mockAttributionHandler.lastJsonResponse);
 
         // checking the default values of the first session package
         // should only have one package
@@ -916,6 +915,34 @@ public class TestActivityHandler extends ActivityInstrumentationTestCase2<UnitTe
 
         // set first session
         testActivityPackage.testSessionPackage(1);
+    }
+
+    public void testLaunchDeeplinkMain(){
+        // assert test name to read better in logcat
+        mockLogger.Assert("TestActivityHandler testLaunchDeeplinkMain");
+
+        // create the config to start the session
+        AdjustConfig config = new AdjustConfig(context, "123456789012", AdjustConfig.ENVIRONMENT_SANDBOX);
+
+        // start activity handler with config
+        ActivityHandler activityHandler = getActivityHandler(config);
+
+        SystemClock.sleep(3000);
+
+        // test init values
+        initTests();
+
+        // test first session start
+        checkFirstSession();
+
+        String deeplink = "wrongDeeplink://";
+
+        activityHandler.launchDeeplinkMain(deeplink);
+        SystemClock.sleep(1000);
+
+        assertUtil.error("Unable to open deep link (wrongDeeplink://)");
+
+        // TODO add test that opens url
     }
 
     public void testUpdateAttribution() {
