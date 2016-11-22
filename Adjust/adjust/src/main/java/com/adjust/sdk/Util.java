@@ -616,10 +616,13 @@ public class Util {
     }
 
     public static String getFireAdvertisingId(ContentResolver contentResolver) {
-        if (contentResolver == null)
+        if (contentResolver == null) {
+            return null;
+        }
         try {
             // get advertising
-            return Secure.getString(contentResolver, "advertising_id");
+            String advertisingId = Secure.getString(contentResolver, "advertising_id");
+            return advertisingId;
         } catch (Exception ex) {
             // not supported
         }
@@ -627,9 +630,13 @@ public class Util {
     }
 
     public static Boolean getFireTrackingEnabled(ContentResolver contentResolver) {
+        if (contentResolver == null) {
+            return null;
+        }
         try {
             // get user's tracking preference
-            return Secure.getInt(contentResolver, "limit_ad_tracking") == 0;
+            boolean trackingEnabled = Secure.getInt(contentResolver, "limit_ad_tracking") == 0;
+            return trackingEnabled;
         } catch (Exception ex) {
             // not supported
         }
