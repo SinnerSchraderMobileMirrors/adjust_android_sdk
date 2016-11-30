@@ -1,5 +1,14 @@
 apply plugin: 'com.android.application'
+apply plugin: 'maven'
 
+buildscript {
+    repositories {
+        maven {
+            //url "https://oss.sonatype.org/content/repositories/staging"
+            url "https://oss.sonatype.org/content/groups/staging"
+        }
+    }
+}
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.0"
@@ -20,7 +29,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar','*.aar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:25.0.0'
     compile 'com.google.android.gms:play-services-analytics:9.8.0'
     // imported module
@@ -28,10 +37,9 @@ dependencies {
     // running mvn package
     //compile fileTree(dir: '../target', include: ['*.jar'])
     // using maven repository
-    //compile 'com.adjust.sdk:adjust-android:4.10.5'
+    //compile 'com.adjust.sdk:adjust-android:4.10.4'
 
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
-
 }
