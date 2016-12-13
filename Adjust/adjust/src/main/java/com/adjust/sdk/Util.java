@@ -36,8 +36,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -207,7 +206,7 @@ public class Util {
         }
     }
 
-    public static ResponseData readHttpResponse(HttpsURLConnection connection, ActivityPackage activityPackage) throws Exception {
+    public static ResponseData readHttpResponse(HttpURLConnection connection, ActivityPackage activityPackage) throws Exception {
         StringBuffer sb = new StringBuffer();
         ILogger logger = getLogger();
         Integer responseCode = null;
@@ -242,6 +241,7 @@ public class Util {
         ResponseData responseData = ResponseData.buildResponseData(activityPackage);
 
         String stringResponse = sb.toString();
+        logger.verbose("ActivityPackage type: %s", activityPackage.getActivityKind());
         logger.verbose("Response: %s", stringResponse);
 
         if (stringResponse == null || stringResponse.length() == 0) {
@@ -274,7 +274,7 @@ public class Util {
         }
 
         if (responseCode != null &&
-                responseCode == HttpsURLConnection.HTTP_OK) {
+                responseCode == HttpURLConnection.HTTP_OK) {
             logger.info("%s", message);
             responseData.success = true;
         } else {
@@ -284,15 +284,15 @@ public class Util {
         return responseData;
     }
 
-    public static AdjustFactory.URLGetConnection createGETHttpsURLConnection(String urlString, String clientSdk)
+    public static AdjustFactory.URLGetConnection createGETHttpURLConnection(String urlString, String clientSdk)
             throws IOException
     {
-        HttpsURLConnection connection = null;
+        HttpURLConnection connection = null;
         try {
             URL url = new URL(urlString);
-            AdjustFactory.URLGetConnection urlGetConnection = AdjustFactory.getHttpsURLGetConnection(url);
+            AdjustFactory.URLGetConnection urlGetConnection = AdjustFactory.getHttpURLGetConnection(url);
 
-            connection = urlGetConnection.httpsURLConnection;
+            connection = urlGetConnection.httpURLConnection;
             setDefaultHttpsUrlConnectionProperties(connection, clientSdk);
 
             connection.setRequestMethod("GET");
@@ -303,16 +303,16 @@ public class Util {
         }
     }
 
-    public static HttpsURLConnection createPOSTHttpsURLConnection(String urlString, String clientSdk,
-                                                                  Map<String, String> parameters,
-                                                                  int queueSize)
+    public static HttpURLConnection createPOSTHttpURLConnection(String urlString, String clientSdk,
+                                                                Map<String, String> parameters,
+                                                                int queueSize)
             throws IOException
     {
         DataOutputStream wr = null;
-        HttpsURLConnection connection = null;
+        HttpURLConnection connection = null;
         try {
             URL url = new URL(urlString);
-            connection = AdjustFactory.getHttpsURLConnection(url);
+            connection = AdjustFactory.getHttpURLConnection(url);
 
             setDefaultHttpsUrlConnectionProperties(connection, clientSdk);
             connection.setRequestMethod("POST");
@@ -371,7 +371,7 @@ public class Util {
         return result.toString();
     }
 
-    public static void setDefaultHttpsUrlConnectionProperties(HttpsURLConnection connection, String clientSdk) {
+    public static void setDefaultHttpsUrlConnectionProperties(HttpURLConnection connection, String clientSdk) {
         connection.setRequestProperty("Client-SDK", clientSdk);
         connection.setConnectTimeout(Constants.ONE_MINUTE);
         connection.setReadTimeout(Constants.ONE_MINUTE);

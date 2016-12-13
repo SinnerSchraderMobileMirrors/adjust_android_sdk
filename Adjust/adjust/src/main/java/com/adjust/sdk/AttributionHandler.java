@@ -194,11 +194,11 @@ public class AttributionHandler implements IAttributionHandler {
         logger.verbose("%s", attributionPackage.getExtendedString());
 
         try {
-            AdjustFactory.URLGetConnection urlGetConnection = Util.createGETHttpsURLConnection(
+            AdjustFactory.URLGetConnection urlGetConnection = Util.createGETHttpURLConnection(
                     buildUriI(attributionPackage.getPath(), attributionPackage.getParameters()).toString(),
                     attributionPackage.getClientSdk());
 
-            ResponseData responseData = Util.readHttpResponse(urlGetConnection.httpsURLConnection, attributionPackage);
+            ResponseData responseData = Util.readHttpResponse(urlGetConnection.httpURLConnection, attributionPackage);
             lastUrlUsed = urlGetConnection.url;
 
             if (!(responseData instanceof AttributionResponseData)) {

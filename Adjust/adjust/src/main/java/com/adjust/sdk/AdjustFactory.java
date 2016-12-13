@@ -3,7 +3,7 @@ package com.adjust.sdk;
 import android.content.Context;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.*;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -13,7 +13,7 @@ public class AdjustFactory {
     private static IAttributionHandler attributionHandler = null;
     private static IActivityHandler activityHandler = null;
     private static ILogger logger = null;
-    private static HttpsURLConnection httpsURLConnection = null;
+    private static HttpsURLConnection httpURLConnection = null;
     private static ISdkClickHandler sdkClickHandler = null;
 
     private static long timerInterval = -1;
@@ -25,10 +25,10 @@ public class AdjustFactory {
     private static long maxDelayStart = -1;
 
     public static class URLGetConnection {
-        HttpsURLConnection httpsURLConnection;
+        HttpURLConnection httpURLConnection;
         URL url;
-        URLGetConnection(HttpsURLConnection httpsURLConnection, URL url) {
-            this.httpsURLConnection = httpsURLConnection;
+        URLGetConnection(HttpURLConnection httpURLConnection, URL url) {
+            this.httpURLConnection = httpURLConnection;
             this.url = url;
         }
     }
@@ -119,20 +119,20 @@ public class AdjustFactory {
         return attributionHandler;
     }
 
-    public static HttpsURLConnection getHttpsURLConnection(URL url) throws IOException {
-        if (AdjustFactory.httpsURLConnection == null) {
-            return (HttpsURLConnection)url.openConnection();
+    public static HttpURLConnection getHttpURLConnection(URL url) throws IOException {
+        if (AdjustFactory.httpURLConnection == null) {
+            return (HttpURLConnection)url.openConnection();
         }
 
-        return AdjustFactory.httpsURLConnection;
+        return AdjustFactory.httpURLConnection;
     }
 
-    public static URLGetConnection getHttpsURLGetConnection(URL url) throws IOException {
-        if (AdjustFactory.httpsURLConnection == null) {
+    public static URLGetConnection getHttpURLGetConnection(URL url) throws IOException {
+        if (AdjustFactory.httpURLConnection == null) {
             return new URLGetConnection((HttpsURLConnection)url.openConnection(), url);
         }
 
-        return new URLGetConnection(AdjustFactory.httpsURLConnection, url);
+        return new URLGetConnection(AdjustFactory.httpURLConnection, url);
     }
 
     public static ISdkClickHandler getSdkClickHandler(boolean startsSending) {
@@ -195,8 +195,8 @@ public class AdjustFactory {
         AdjustFactory.attributionHandler = attributionHandler;
     }
 
-    public static void setHttpsURLConnection(HttpsURLConnection httpsURLConnection) {
-        AdjustFactory.httpsURLConnection = httpsURLConnection;
+    public static void setHttpURLConnection(HttpsURLConnection httpURLConnection) {
+        AdjustFactory.httpURLConnection = httpURLConnection;
     }
 
     public static void setSdkClickHandler(ISdkClickHandler sdkClickHandler) {

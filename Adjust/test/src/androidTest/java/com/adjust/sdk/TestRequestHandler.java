@@ -4,10 +4,7 @@ import android.content.Context;
 import android.os.SystemClock;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.LargeTest;
-
-import com.adjust.sdk.test.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -44,7 +41,7 @@ public class TestRequestHandler {
 
         AdjustFactory.setLogger(mockLogger);
         AdjustFactory.setPackageHandler(mockPackageHandler);
-        AdjustFactory.setHttpsURLConnection(mockHttpsURLConnection);
+        AdjustFactory.setHttpURLConnection(mockHttpsURLConnection);
 
         activity = mActivityRule.getActivity();
         context = activity.getApplicationContext();
@@ -54,7 +51,7 @@ public class TestRequestHandler {
 
     @After
     public void tearDown() throws Exception {
-        AdjustFactory.setHttpsURLConnection(null);
+        AdjustFactory.setHttpURLConnection(null);
         AdjustFactory.setPackageHandler(null);
         AdjustFactory.setLogger(null);
     }

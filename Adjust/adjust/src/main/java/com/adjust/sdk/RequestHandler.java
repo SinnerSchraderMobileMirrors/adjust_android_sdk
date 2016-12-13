@@ -12,9 +12,7 @@ package com.adjust.sdk;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
-import java.net.SocketTimeoutException;
-
-import javax.net.ssl.HttpsURLConnection;
+import java.net.*;
 
 public class RequestHandler implements IRequestHandler {
     private CustomScheduledExecutor scheduledExecutor;
@@ -62,7 +60,7 @@ public class RequestHandler implements IRequestHandler {
         String targetURL = Constants.BASE_URL + activityPackage.getPath();
 
         try {
-            HttpsURLConnection connection = Util.createPOSTHttpsURLConnection(
+            HttpURLConnection connection = Util.createPOSTHttpURLConnection(
                     targetURL,
                     activityPackage.getClientSdk(),
                     activityPackage.getParameters(),

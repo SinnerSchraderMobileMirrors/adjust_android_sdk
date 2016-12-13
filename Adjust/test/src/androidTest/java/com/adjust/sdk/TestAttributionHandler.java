@@ -5,10 +5,7 @@ import android.net.Uri;
 import android.os.SystemClock;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.LargeTest;
-
-import com.adjust.sdk.test.*;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,7 +43,7 @@ public class TestAttributionHandler{
 
         AdjustFactory.setLogger(mockLogger);
         AdjustFactory.setActivityHandler(mockActivityHandler);
-        AdjustFactory.setHttpsURLConnection(mockHttpsURLConnection);
+        AdjustFactory.setHttpURLConnection(mockHttpsURLConnection);
 
         activity = mActivityRule.getActivity();
         context = activity.getApplicationContext();
@@ -92,7 +89,7 @@ public class TestAttributionHandler{
 
     @After
     public void tearDown() {
-        AdjustFactory.setHttpsURLConnection(null);
+        AdjustFactory.setHttpURLConnection(null);
         AdjustFactory.setActivityHandler(null);
         AdjustFactory.setLogger(null);
 

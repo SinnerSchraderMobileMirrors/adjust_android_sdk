@@ -2,7 +2,7 @@ package com.adjust.sdk;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.SocketTimeoutException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -122,7 +122,7 @@ public class SdkClickHandler implements ISdkClickHandler {
         String targetURL = Constants.BASE_URL + sdkClickPackage.getPath();
 
         try {
-            HttpsURLConnection connection = Util.createPOSTHttpsURLConnection(
+            HttpURLConnection connection = Util.createPOSTHttpURLConnection(
                     targetURL,
                     sdkClickPackage.getClientSdk(),
                     sdkClickPackage.getParameters(),
