@@ -26,8 +26,8 @@ public interface Constants {
     int SOCKET_TIMEOUT = Constants.ONE_MINUTE;
     int MAX_WAIT_INTERVAL = Constants.ONE_MINUTE;
 
-    String BASE_URL = "https://app.adjust.com";
-//    String BASE_URL = "http://172.16.150.242:8081";
+//    String BASE_URL = "https://app.adjust.com";
+    String BASE_URL = "http://192.168.2.69:8081";
     String SCHEME = "https";
     String AUTHORITY = "app.adjust.com";
     String CLIENT_SDK = "android4.10.4";
