@@ -96,7 +96,7 @@ public class AdjustFactory {
 
     public static BackoffStrategy getPackageHandlerBackoffStrategy() {
         if (packageHandlerBackoffStrategy == null) {
-            return BackoffStrategy.LONG_WAIT;
+            return BackoffStrategy.TEST_WAIT;
         }
         return packageHandlerBackoffStrategy;
     }
@@ -129,7 +129,7 @@ public class AdjustFactory {
 
     public static URLGetConnection getHttpURLGetConnection(URL url) throws IOException {
         if (AdjustFactory.httpURLConnection == null) {
-            return new URLGetConnection((HttpsURLConnection)url.openConnection(), url);
+            return new URLGetConnection((HttpURLConnection)url.openConnection(), url);
         }
 
         return new URLGetConnection(AdjustFactory.httpURLConnection, url);

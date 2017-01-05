@@ -27,9 +27,17 @@ public interface Constants {
     int MAX_WAIT_INTERVAL = Constants.ONE_MINUTE;
 
 //    String BASE_URL = "https://app.adjust.com";
-    String BASE_URL = "http://192.168.2.69:8081";
-    String SCHEME = "https";
-    String AUTHORITY = "app.adjust.com";
+//    String SCHEME = "https";
+//    String AUTHORITY = "app.adjust.com";
+
+//    String BASE_URL = "http://192.168.2.69:8081";
+//    String SCHEME = "http";
+//    String AUTHORITY = "192.168.2.69:8081";
+
+    String BASE_URL = "http://172.16.150.242:8081";
+    String SCHEME = "http";
+    String AUTHORITY = "172.16.150.242:8081";
+
     String CLIENT_SDK = "android4.10.4";
     String LOGTAG = "Adjust";
     String REFTAG = "reftag";
@@ -59,6 +67,30 @@ public interface Constants {
 
     String CALLBACK_PARAMETERS = "callback_params";
     String PARTNER_PARAMETERS = "partner_params";
+
+    String STATE_SDK_ENABLED = "sdk_enabled";
+    String STATE_SDK_OFFLINE = "sdk_offline";
+    String STATE_BACKGROUND_ENABLED = "background_enabled";
+    String STATE_DELAY_START = "delay_start";
+    String STATE_TO_UPDATE_PACKAGES = "to_update_packages";
+    String STATE_PUSH_TOKEN = "push_token";
+    String STATE_REFERRER = "referrer";
+    String STATE_CALLBACK_PARAMETERS = "callback_parameters";
+    String STATE_PARTNER_PARAMETERS = "partner_parameters";
+    String STATE_DEFAULT_TRACKER = "default_tracker";
+    String STATE_IS_ATTRIBUTION_CALLBACK_IMPLEMENNTED = "is_attribution_callback_implemented";
+    String STATE_IS_EVENT_TRACKING_SUCCEEDED_CALLBACK_IMPLEMENTED = "is_event_tracking_succeeded_callback_implemented";
+    String STATE_IS_EVENT_TRACKING_FAILED_CALLBACK_IMPLEMENTED = "is_event_tracking_failed_callback_implemented";
+    String STATE_IS_SESSION_TRACKING_SUCCEEDED_CALLBACK_IMPLEMENTED = "is_session_tracking_succeeded_callback_implemented";
+    String STATE_IS_SESSION_TRACKING_FAILED_CALLBACK_IMPLEMENTED = "is_session_tracking_failed_callback_implemented";
+    String STATE_IS_DEFERRED_DEEPLINK_CALLBACK_IMPLEMENTED = "is_deferred_deeplink_callback_implemented";
+    String STATE_ALLOW_SUPPRESS_LOG_LEVEL = "allow_suppress_log_level";
+    String STATE_USER_AGENT = "user_agent";
+    String STATE_LOG_LEVEL = "allow_suppress_log_level";
+    String STATE_APP_TOKEN = "app_token";
+    String STATE_ENVIRONMENT = "environment";
+    String STATE_PROCESS_NAME = "process_name";
+    String STATE_SDK_PREFIX = "sdk_prefix";
 
     // List of known plugins, possibly not active
     List<String> PLUGINS = Arrays.asList();

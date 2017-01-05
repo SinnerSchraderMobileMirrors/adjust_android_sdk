@@ -216,7 +216,9 @@ public class AttributionHandler implements IAttributionHandler {
         Uri.Builder uriBuilder = new Uri.Builder();
 
         uriBuilder.scheme(Constants.SCHEME);
-        uriBuilder.authority(Constants.AUTHORITY);
+//        uriBuilder.authority(Constants.AUTHORITY);
+        //Used .encodedAuthority() instead of .Authority() to allow inserting port numbers
+        uriBuilder.encodedAuthority(Constants.AUTHORITY);
         uriBuilder.appendPath(path);
 
         for (Map.Entry<String, String> entry : parameters.entrySet()) {

@@ -17,14 +17,20 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Handler;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import org.json.*;
+
+import java.util.*;
 
 import static com.adjust.sdk.Constants.ACTIVITY_STATE_FILENAME;
 import static com.adjust.sdk.Constants.ATTRIBUTION_FILENAME;
 import static com.adjust.sdk.Constants.SESSION_CALLBACK_PARAMETERS_FILENAME;
 import static com.adjust.sdk.Constants.SESSION_PARTNER_PARAMETERS_FILENAME;
+import static com.adjust.sdk.Constants.STATE_BACKGROUND_ENABLED;
+import static com.adjust.sdk.Constants.STATE_CALLBACK_PARAMETERS;
+import static com.adjust.sdk.Constants.STATE_PARTNER_PARAMETERS;
+import static com.adjust.sdk.Constants.STATE_SDK_ENABLED;
+import static com.adjust.sdk.Constants.STATE_SDK_OFFLINE;
+import static com.adjust.sdk.Constants.STATE_TO_UPDATE_PACKAGES;
 
 public class ActivityHandler implements IActivityHandler {
     private static long FOREGROUND_TIMER_INTERVAL;
@@ -108,50 +114,6 @@ public class ActivityHandler implements IActivityHandler {
         attributionHandler = null;
         sdkClickHandler = null;
         sessionParameters = null;
-    }
-
-    public class InternalState {
-        boolean enabled;
-        boolean offline;
-        boolean background;
-        boolean delayStart;
-        boolean updatePackages;
-
-        public boolean isEnabled() {
-            return enabled;
-        }
-
-        public boolean isDisabled() {
-            return !enabled;
-        }
-
-        public boolean isOffline() {
-            return offline;
-        }
-
-        public boolean isOnline() {
-            return !offline;
-        }
-
-        public boolean isBackground() {
-            return background;
-        }
-
-        public boolean isForeground() {
-            return !background;
-        }
-
-        public boolean isDelayStart() {
-            return delayStart;
-        }
-
-        public boolean isToStartNow() {
-            return !delayStart;
-        }
-
-        public boolean isToUpdatePackages() {
-            return updatePackages;
-        }
     }
 
     private ActivityHandler(AdjustConfig adjustConfig) {
@@ -1632,5 +1594,78 @@ public class ActivityHandler implements IActivityHandler {
 
         // doesn't have the option -> depends on being on the background/foreground
         return internalState.isForeground();
+    }
+
+    public class InternalState {
+        boolean enabled;
+        boolean offline;
+        boolean background;
+        boolean delayStart;
+        boolean updatePackages;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public boolean isDisabled() {
+            return !enabled;
+        }
+
+        public boolean isOffline() {
+            return offline;
+        }
+
+        public boolean isOnline() {
+            return !offline;
+        }
+
+        public boolean isBackground() {
+            return background;
+        }
+
+        public boolean isForeground() {
+            return !background;
+        }
+
+        public boolean isDelayStart() {
+            return delayStart;
+        }
+
+        public boolean isToStartNow() {
+            return !delayStart;
+        }
+
+        public boolean isToUpdatePackages() {
+            return updatePackages;
+        }
+    }
+
+    @Override
+    public Map<String, Object> getState() {
+        Map<String, Object> data = new HashMap<>();
+        data.put(STATE_SDK_ENABLED, internalState.enabled);
+        data.put(STATE_SDK_OFFLINE, internalState.offline);
+        data.put(STATE_BACKGROUND_ENABLED, internalState.background);
+        data.put(STATE_TO_UPDATE_PACKAGES, internalState.updatePackages);
+        //data.put(STATE_PUSH_TOKEN, activityState.pushToken);
+
+        if (sessionParameters != null) {
+            if (sessionParameters.callbackParameters != null) {
+                data.put(STATE_CALLBACK_PARAMETERS, new JSONObject(sessionParameters.callbackParameters).toString());
+            } else {
+                data.put(STATE_CALLBACK_PARAMETERS, new JSONObject().toString());
+            }
+
+            if (sessionParameters.partnerParameters != null) {
+                data.put(STATE_PARTNER_PARAMETERS, new JSONObject(sessionParameters.partnerParameters).toString());
+            } else {
+                data.put(STATE_PARTNER_PARAMETERS, new JSONObject().toString());
+            }
+        } else {
+            data.put(STATE_CALLBACK_PARAMETERS, new JSONObject().toString());
+            data.put(STATE_PARTNER_PARAMETERS, new JSONObject().toString());
+        }
+
+        return data;
     }
 }

@@ -2,12 +2,28 @@ package com.adjust.sdk;
 
 import android.content.Context;
 
-import java.util.List;
+import java.util.*;
+
+import static com.adjust.sdk.Constants.STATE_ALLOW_SUPPRESS_LOG_LEVEL;
+import static com.adjust.sdk.Constants.STATE_APP_TOKEN;
+import static com.adjust.sdk.Constants.STATE_DEFAULT_TRACKER;
+import static com.adjust.sdk.Constants.STATE_DELAY_START;
+import static com.adjust.sdk.Constants.STATE_ENVIRONMENT;
+import static com.adjust.sdk.Constants.STATE_IS_ATTRIBUTION_CALLBACK_IMPLEMENNTED;
+import static com.adjust.sdk.Constants.STATE_IS_DEFERRED_DEEPLINK_CALLBACK_IMPLEMENTED;
+import static com.adjust.sdk.Constants.STATE_IS_EVENT_TRACKING_FAILED_CALLBACK_IMPLEMENTED;
+import static com.adjust.sdk.Constants.STATE_IS_EVENT_TRACKING_SUCCEEDED_CALLBACK_IMPLEMENTED;
+import static com.adjust.sdk.Constants.STATE_IS_SESSION_TRACKING_FAILED_CALLBACK_IMPLEMENTED;
+import static com.adjust.sdk.Constants.STATE_IS_SESSION_TRACKING_SUCCEEDED_CALLBACK_IMPLEMENTED;
+import static com.adjust.sdk.Constants.STATE_PROCESS_NAME;
+import static com.adjust.sdk.Constants.STATE_REFERRER;
+import static com.adjust.sdk.Constants.STATE_SDK_PREFIX;
+import static com.adjust.sdk.Constants.STATE_USER_AGENT;
 
 /**
  * Created by pfms on 06/11/14.
  */
-public class AdjustConfig {
+public class AdjustConfig implements IStateable {
     Context context;
     String appToken;
     String environment;
@@ -83,7 +99,9 @@ public class AdjustConfig {
         this.sdkPrefix = sdkPrefix;
     }
 
-    public void setProcessName(String processName) { this.processName = processName; }
+    public void setProcessName(String processName) {
+        this.processName = processName;
+    }
 
     public void setDefaultTracker(String defaultTracker) {
         this.defaultTracker = defaultTracker;
@@ -221,5 +239,27 @@ public class AdjustConfig {
 
         logger.error("Unknown environment '%s'", environment);
         return false;
+    }
+
+    @Override
+    public Map<String, Object> getState() {
+        Map<String, Object> data = new HashMap<>();
+        data.put(STATE_DEFAULT_TRACKER, defaultTracker);
+        data.put(STATE_IS_ATTRIBUTION_CALLBACK_IMPLEMENNTED, onAttributionChangedListener != null);
+        data.put(STATE_IS_EVENT_TRACKING_SUCCEEDED_CALLBACK_IMPLEMENTED, onEventTrackingFailedListener != null);
+        data.put(STATE_IS_EVENT_TRACKING_FAILED_CALLBACK_IMPLEMENTED, onEventTrackingFailedListener != null);
+        data.put(STATE_IS_SESSION_TRACKING_SUCCEEDED_CALLBACK_IMPLEMENTED, onSessionTrackingSucceededListener != null);
+        data.put(STATE_IS_SESSION_TRACKING_FAILED_CALLBACK_IMPLEMENTED, onSessionTrackingFailedListener != null);
+        data.put(STATE_IS_DEFERRED_DEEPLINK_CALLBACK_IMPLEMENTED, onDeeplinkResponseListener != null);
+        data.put(STATE_ALLOW_SUPPRESS_LOG_LEVEL, allowSuppressLogLevel);
+        data.put(STATE_USER_AGENT, userAgent);
+        data.put(STATE_APP_TOKEN, appToken);
+        data.put(STATE_ENVIRONMENT, environment);
+        data.put(STATE_PROCESS_NAME, processName);
+        data.put(STATE_SDK_PREFIX, sdkPrefix);
+        data.put(STATE_REFERRER, referrer);
+        data.put(STATE_DELAY_START, delayStart);
+
+        return data;
     }
 }

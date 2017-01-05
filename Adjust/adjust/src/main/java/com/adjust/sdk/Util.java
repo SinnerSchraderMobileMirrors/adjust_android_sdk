@@ -16,6 +16,7 @@ import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Looper;
 import android.provider.Settings.Secure;
+import android.util.*;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,8 +49,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.net.ssl.HttpsURLConnection;
-
+import static android.content.ContentValues.TAG;
 import static com.adjust.sdk.Constants.ENCODING;
 import static com.adjust.sdk.Constants.MD5;
 import static com.adjust.sdk.Constants.SHA1;
@@ -287,13 +287,15 @@ public class Util {
     public static AdjustFactory.URLGetConnection createGETHttpURLConnection(String urlString, String clientSdk)
             throws IOException
     {
+        Log.d(TAG, "createGETHttpURLConnection: >>>> urlString: " + urlString);
+
         HttpURLConnection connection = null;
         try {
             URL url = new URL(urlString);
             AdjustFactory.URLGetConnection urlGetConnection = AdjustFactory.getHttpURLGetConnection(url);
 
             connection = urlGetConnection.httpURLConnection;
-            setDefaultHttpsUrlConnectionProperties(connection, clientSdk);
+            setDefaultHttpUrlConnectionProperties(connection, clientSdk);
 
             connection.setRequestMethod("GET");
 
@@ -308,13 +310,15 @@ public class Util {
                                                                 int queueSize)
             throws IOException
     {
+        Log.d(TAG, "createPOSTHttpURLConnection: >>>> urlString: " + urlString);
+
         DataOutputStream wr = null;
         HttpURLConnection connection = null;
         try {
             URL url = new URL(urlString);
             connection = AdjustFactory.getHttpURLConnection(url);
 
-            setDefaultHttpsUrlConnectionProperties(connection, clientSdk);
+            setDefaultHttpUrlConnectionProperties(connection, clientSdk);
             connection.setRequestMethod("POST");
 
             connection.setUseCaches(false);
@@ -368,10 +372,11 @@ public class Util {
             result.append(URLEncoder.encode("" + queueSize, Constants.ENCODING));
         }
 
+        Log.d(TAG, "getPostDataString: >>>>>>>>>>>>>>> stuff sent to backend: " + result.toString());
         return result.toString();
     }
 
-    public static void setDefaultHttpsUrlConnectionProperties(HttpURLConnection connection, String clientSdk) {
+    public static void setDefaultHttpUrlConnectionProperties(HttpURLConnection connection, String clientSdk) {
         connection.setRequestProperty("Client-SDK", clientSdk);
         connection.setConnectTimeout(Constants.ONE_MINUTE);
         connection.setReadTimeout(Constants.ONE_MINUTE);
