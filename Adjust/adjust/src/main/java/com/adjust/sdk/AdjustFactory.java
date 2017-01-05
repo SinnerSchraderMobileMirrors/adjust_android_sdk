@@ -2,10 +2,9 @@ package com.adjust.sdk;
 
 import android.content.Context;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
-
-import javax.net.ssl.HttpsURLConnection;
+import java.util.*;
 
 public class AdjustFactory {
     private static IPackageHandler packageHandler = null;
@@ -13,7 +12,7 @@ public class AdjustFactory {
     private static IAttributionHandler attributionHandler = null;
     private static IActivityHandler activityHandler = null;
     private static ILogger logger = null;
-    private static HttpsURLConnection httpURLConnection = null;
+    private static HttpURLConnection httpURLConnection = null;
     private static ISdkClickHandler sdkClickHandler = null;
 
     private static long timerInterval = -1;
@@ -23,6 +22,16 @@ public class AdjustFactory {
     private static BackoffStrategy sdkClickBackoffStrategy = null;
     private static BackoffStrategy packageHandlerBackoffStrategy = null;
     private static long maxDelayStart = -1;
+
+    public static void teardown() {
+        packageHandler = null;
+        requestHandler = null;
+        attributionHandler = null;
+        activityHandler = null;
+        logger = null;
+        httpURLConnection = null;
+        sdkClickHandler = null;
+    }
 
     public static class URLGetConnection {
         HttpURLConnection httpURLConnection;
@@ -38,17 +47,17 @@ public class AdjustFactory {
                                                     Context context,
                                                     boolean startsSending) {
         if (packageHandler == null) {
-            return new PackageHandler(activityHandler, context, startsSending);
+            packageHandler = new PackageHandler(activityHandler, context, startsSending);
         }
-        packageHandler.init(activityHandler, context, startsSending);
+
         return packageHandler;
     }
 
     public static IRequestHandler getRequestHandler(IPackageHandler packageHandler) {
         if (requestHandler == null) {
-            return new RequestHandler(packageHandler);
+            requestHandler = new RequestHandler(packageHandler);
         }
-        requestHandler.init(packageHandler);
+
         return requestHandler;
     }
 
@@ -56,6 +65,7 @@ public class AdjustFactory {
         if (logger == null) {
             // Logger needs to be "static" to retain the configuration throughout the app
             logger = new Logger();
+
         }
         return logger;
     }
@@ -97,16 +107,19 @@ public class AdjustFactory {
 
     public static BackoffStrategy getPackageHandlerBackoffStrategy() {
         if (packageHandlerBackoffStrategy == null) {
-            return BackoffStrategy.TEST_WAIT;
+            return BackoffStrategy.LONG_WAIT;
         }
         return packageHandlerBackoffStrategy;
     }
 
     public static IActivityHandler getActivityHandler(AdjustConfig config) {
         if (activityHandler == null) {
-            return ActivityHandler.getInstance(config);
+            activityHandler = ActivityHandler.getInstance(config);
+            if (activityHandler == null) {
+                return null;
+            }
         }
-        activityHandler.init(config);
+
         return activityHandler;
     }
 
@@ -124,34 +137,37 @@ public class AdjustFactory {
                                                             ActivityPackage attributionPackage,
                                                             boolean startsSending) {
         if (attributionHandler == null) {
-            return new AttributionHandler(activityHandler, attributionPackage, startsSending);
+            attributionHandler = new AttributionHandler(activityHandler, attributionPackage, startsSending);
         }
-        attributionHandler.init(activityHandler, attributionPackage, startsSending);
+
         return attributionHandler;
     }
 
     public static HttpURLConnection getHttpURLConnection(URL url) throws IOException {
-        if (AdjustFactory.httpURLConnection == null) {
-            return (HttpURLConnection) url.openConnection();
+        if (httpURLConnection == null) {
+            httpURLConnection = (HttpURLConnection) url.openConnection();
         }
 
-        return AdjustFactory.httpURLConnection;
+        Properties systemProperties = System.getProperties();
+        systemProperties.setProperty("http.proxyHost","http://www.google.com");
+        systemProperties.setProperty("http.proxyPort","8080");
+
+        return httpURLConnection;
     }
 
     public static URLGetConnection getHttpURLGetConnection(URL url) throws IOException {
-        if (AdjustFactory.httpURLConnection == null) {
-            return new URLGetConnection((HttpURLConnection) url.openConnection(), url);
+        if (httpURLConnection == null) {
+            httpURLConnection = (HttpURLConnection) url.openConnection();
         }
 
-        return new URLGetConnection(AdjustFactory.httpURLConnection, url);
+        return new URLGetConnection(httpURLConnection, url);
     }
 
     public static ISdkClickHandler getSdkClickHandler(boolean startsSending) {
         if (sdkClickHandler == null) {
-            return new SdkClickHandler(startsSending);
+            sdkClickHandler = new SdkClickHandler(startsSending);
         }
 
-        sdkClickHandler.init(startsSending);
         return sdkClickHandler;
     }
 
@@ -206,11 +222,13 @@ public class AdjustFactory {
         AdjustFactory.attributionHandler = attributionHandler;
     }
 
-    public static void setHttpURLConnection(HttpsURLConnection httpURLConnection) {
+    public static void setHttpURLConnection(HttpURLConnection httpURLConnection) {
         AdjustFactory.httpURLConnection = httpURLConnection;
     }
 
     public static void setSdkClickHandler(ISdkClickHandler sdkClickHandler) {
         AdjustFactory.sdkClickHandler = sdkClickHandler;
     }
+
 }
+

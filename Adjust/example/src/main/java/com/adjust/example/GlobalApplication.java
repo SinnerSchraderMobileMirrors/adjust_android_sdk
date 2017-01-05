@@ -135,9 +135,9 @@ public class GlobalApplication extends Application {
         // Remove all session partner parameters.
         Adjust.resetSessionPartnerParameters();
 
-        AdjustAnalyzer.init(config);
         // Initialise the adjust SDK.
         Adjust.onCreate(config);
+        AdjustAnalyzer.init(config);
 
         // Abort delay for the first session introduced with setDelayStart method.
         // Adjust.sendFirstPackages();
