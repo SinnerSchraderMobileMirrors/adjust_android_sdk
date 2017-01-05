@@ -27,6 +27,7 @@ public class AdjustFactory {
     public static class URLGetConnection {
         HttpURLConnection httpURLConnection;
         URL url;
+
         URLGetConnection(HttpURLConnection httpURLConnection, URL url) {
             this.httpURLConnection = httpURLConnection;
             this.url = url;
@@ -109,6 +110,16 @@ public class AdjustFactory {
         return activityHandler;
     }
 
+    public static IActivityHandler getActivityHandler() {
+        if (activityHandler == null) {
+            logger.error("Trying to retrieve ActivityHandler without AdjustConfig. " +
+                    "Call Adjust.create() first before calling this function");
+            return null;
+        }
+
+        return activityHandler;
+    }
+
     public static IAttributionHandler getAttributionHandler(IActivityHandler activityHandler,
                                                             ActivityPackage attributionPackage,
                                                             boolean startsSending) {
@@ -121,7 +132,7 @@ public class AdjustFactory {
 
     public static HttpURLConnection getHttpURLConnection(URL url) throws IOException {
         if (AdjustFactory.httpURLConnection == null) {
-            return (HttpURLConnection)url.openConnection();
+            return (HttpURLConnection) url.openConnection();
         }
 
         return AdjustFactory.httpURLConnection;
@@ -129,7 +140,7 @@ public class AdjustFactory {
 
     public static URLGetConnection getHttpURLGetConnection(URL url) throws IOException {
         if (AdjustFactory.httpURLConnection == null) {
-            return new URLGetConnection((HttpURLConnection)url.openConnection(), url);
+            return new URLGetConnection((HttpURLConnection) url.openConnection(), url);
         }
 
         return new URLGetConnection(AdjustFactory.httpURLConnection, url);

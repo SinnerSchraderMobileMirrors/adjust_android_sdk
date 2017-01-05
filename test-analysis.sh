@@ -17,7 +17,7 @@ cd ~/Dev/go
 ./bin/analyzer_rest_server-example &
 
 cd ~/Dev/android_sdk/Adjust
-./gradlew example:connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.adjust.example.BasicTimeoutTest
+./gradlew example:connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.adjust.example.BasicAttributionTest
 
 echo -e "${GREEN}>>> Terminate server test ${NC}"
 fg
