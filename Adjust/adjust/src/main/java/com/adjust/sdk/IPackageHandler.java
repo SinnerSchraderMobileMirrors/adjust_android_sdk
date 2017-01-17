@@ -2,7 +2,7 @@ package com.adjust.sdk;
 
 import android.content.Context;
 
-public interface IPackageHandler {
+public interface IPackageHandler extends IStateable{
     void init(IActivityHandler activityHandler, Context context, boolean startsSending);
 
     void addPackage(ActivityPackage activityPackage);

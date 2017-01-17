@@ -137,29 +137,30 @@ public class MainActivity extends AppCompatActivity {
     public void onServiceActivityClick(View v) {
 //        Intent intent = new Intent(this, ServiceActivity.class);
 //        startActivity(intent);
-        final String request = Constants.BASE_URL + "/terminate";
-        new AsyncTask<Void, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                try {
-                    URL url = new URL(request);
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setDoOutput(true);
-                    conn.setInstanceFollowRedirects(false);
-                    conn.setRequestMethod("POST");
-                    conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
-                    conn.setRequestProperty("charset", "utf-8");
-//            conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
-                    conn.setUseCaches(false);
-                    conn.connect();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-        };
+        AdjustAnalyzer.reportFooToRestApi("aaa");
+//        final String request = Constants.BASE_URL + "/terminate";
+//        new AsyncTask<Void, Void, Void>() {
+//
+//            @Override
+//            protected Void doInBackground(Void... voids) {
+//                try {
+//                    URL url = new URL(request);
+//                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//                    conn.setDoOutput(true);
+//                    conn.setInstanceFollowRedirects(false);
+//                    conn.setRequestMethod("POST");
+//                    conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+//                    conn.setRequestProperty("charset", "utf-8");
+////            conn.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+//                    conn.setUseCaches(false);
+//                    conn.connect();
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                return null;
+//            }
+//        };
     }
 
 }

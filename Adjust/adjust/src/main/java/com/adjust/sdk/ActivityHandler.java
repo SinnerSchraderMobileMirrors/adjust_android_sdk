@@ -16,11 +16,13 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Handler;
+import android.util.*;
 
 import org.json.*;
 
 import java.util.*;
 
+import static android.content.ContentValues.TAG;
 import static com.adjust.sdk.Constants.ACTIVITY_STATE_FILENAME;
 import static com.adjust.sdk.Constants.ATTRIBUTION_FILENAME;
 import static com.adjust.sdk.Constants.SESSION_CALLBACK_PARAMETERS_FILENAME;
@@ -125,6 +127,7 @@ public class ActivityHandler implements IActivityHandler {
         logger.lockLogLevel();
 
         scheduledExecutor = new CustomScheduledExecutor("ActivityHandler");
+        Log.d(TAG, "ActivityHandler: >>>>>>>>>>>>> initing scheduled executor");
         internalState = new InternalState();
 
         // enabled by default
@@ -181,8 +184,7 @@ public class ActivityHandler implements IActivityHandler {
             }
         }
 
-        ActivityHandler activityHandler = new ActivityHandler(adjustConfig);
-        return activityHandler;
+        return new ActivityHandler(adjustConfig);
     }
 
     @Override
@@ -547,6 +549,7 @@ public class ActivityHandler implements IActivityHandler {
     }
 
     private void initI() {
+        Log.d(TAG, "initI: >>>>>>>>>>Running init");
         SESSION_INTERVAL = AdjustFactory.getSessionInterval();
         SUBSESSION_INTERVAL = AdjustFactory.getSubsessionInterval();
         // get timer values
@@ -654,6 +657,7 @@ public class ActivityHandler implements IActivityHandler {
         }
 
         for (IRunActivityHandler sessionParametersAction : sessionParametersActionsArray) {
+            Log.d(TAG, "sessionParametersActionsI: >>>>>>>>>>session parameters getting assigned");
             sessionParametersAction.run(this);
         }
     }
@@ -1291,6 +1295,7 @@ public class ActivityHandler implements IActivityHandler {
             logger.warn("Key %s will be overwritten", key);
         }
 
+        Log.d(TAG, "addSessionCallbackParameterI: >>>>> adding key: " + " and value: " + value);
         sessionParameters.callbackParameters.put(key, value);
 
         writeSessionCallbackParametersI();
@@ -1662,6 +1667,8 @@ public class ActivityHandler implements IActivityHandler {
                 data.put(STATE_PARTNER_PARAMETERS, new JSONObject().toString());
             }
         } else {
+            Log.d(TAG, ">>>>>>>>>>>getState: Found no session parameters");
+
             data.put(STATE_CALLBACK_PARAMETERS, new JSONObject().toString());
             data.put(STATE_PARTNER_PARAMETERS, new JSONObject().toString());
         }

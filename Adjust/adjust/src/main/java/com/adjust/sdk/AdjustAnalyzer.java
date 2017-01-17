@@ -9,10 +9,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import javax.net.ssl.*;
-
-import static android.content.ContentValues.TAG;
-import static com.adjust.sdk.AdjustFactory.getActivityHandler;
 import static com.adjust.sdk.Constants.STATE_ALLOW_SUPPRESS_LOG_LEVEL;
 import static com.adjust.sdk.Constants.STATE_APP_TOKEN;
 import static com.adjust.sdk.Constants.STATE_BACKGROUND_ENABLED;
@@ -205,16 +201,31 @@ public final class AdjustAnalyzer {
     public static void reportFooToRestApi(String callsite) {
         final String targetURL = Constants.BASE_URL + "/state";
 
+        //Tree map to have it organized (not sure why this is necessary. A regular map is also good)
         Map<String, Object> map = new TreeMap<>();
+
+        //append callsite as first parameter
         map.put("call_site", callsite);
+
+        //Append AdjustConfig's state
         map.putAll(savedAdjustConfigState.getState());
 
-        ActivityHandler activityHandler = (ActivityHandler) getActivityHandler();
+        //Activity handler's state
+        ActivityHandler activityHandler = (ActivityHandler) AdjustFactory.getActivityHandler();
         if (activityHandler == null) {
             AdjustFactory.getLogger().error("activity handler is null. Couldn't report");
             return;
         }
         map.putAll(activityHandler.getState());
+
+        //Package handler's state
+        PackageHandler packageHandler = (PackageHandler) AdjustFactory.getPackageHandler();
+        if (packageHandler == null) {
+            AdjustFactory.getLogger().error("package handler is null. Couldn't report");
+            return;
+        }
+        map.putAll(packageHandler.getState());
+
         final String json = new JSONObject(map).toString();
 
         new AsyncTask<String, Void, Void>() {

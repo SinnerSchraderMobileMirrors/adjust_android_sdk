@@ -14,7 +14,7 @@ curl http://app.adjust.com/forget_device\?app_token\=${APP_TOKEN}\&adid\=${ADID}
 
 echo -e "${GREEN}>>> Run the test server ${NC}"
 cd ~/Dev/go
-./bin/analyzer_rest_server-example &
+./bin/sdk_analyzer &
 
 cd ~/Dev/android_sdk/Adjust
 ./gradlew example:connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.adjust.example.BasicAttributionTest

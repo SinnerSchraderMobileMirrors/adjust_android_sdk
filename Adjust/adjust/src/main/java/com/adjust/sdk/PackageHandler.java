@@ -10,16 +10,26 @@
 package com.adjust.sdk;
 
 import android.content.Context;
+import android.util.*;
+
+import org.json.*;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static android.content.ContentValues.TAG;
 import static com.adjust.sdk.Constants.CALLBACK_PARAMETERS;
 import static com.adjust.sdk.Constants.PARTNER_PARAMETERS;
+import static com.adjust.sdk.Constants.STATE_BACKGROUND_ENABLED;
+import static com.adjust.sdk.Constants.STATE_CALLBACK_PARAMETERS;
+import static com.adjust.sdk.Constants.STATE_PACKAGE_QUEUE_SIZE;
+import static com.adjust.sdk.Constants.STATE_PACKAGE_QUEUE_TYPE_LIST;
+import static com.adjust.sdk.Constants.STATE_PARTNER_PARAMETERS;
+import static com.adjust.sdk.Constants.STATE_SDK_ENABLED;
+import static com.adjust.sdk.Constants.STATE_SDK_OFFLINE;
+import static com.adjust.sdk.Constants.STATE_TO_UPDATE_PACKAGES;
 
 // persistent
 public class PackageHandler implements IPackageHandler {
@@ -42,7 +52,8 @@ public class PackageHandler implements IPackageHandler {
         if (scheduledExecutor != null) {
             try {
                 scheduledExecutor.shutdownNow();
-            } catch(SecurityException se) {}
+            } catch (SecurityException se) {
+            }
         }
         if (activityHandlerWeakRef != null) {
             activityHandlerWeakRef.clear();
@@ -270,7 +281,7 @@ public class PackageHandler implements IPackageHandler {
             packageQueue = Util.readObject(context,
                     PACKAGE_QUEUE_FILENAME,
                     PACKAGE_QUEUE_NAME,
-                    (Class<List<ActivityPackage>>)(Class)List.class);
+                    (Class<List<ActivityPackage>>) (Class) List.class);
         } catch (Exception e) {
             logger.error("Failed to read %s file (%s)", PACKAGE_QUEUE_NAME, e.getMessage());
             packageQueue = null;
@@ -290,5 +301,19 @@ public class PackageHandler implements IPackageHandler {
 
     public static Boolean deletePackageQueue(Context context) {
         return context.deleteFile(PACKAGE_QUEUE_FILENAME);
+    }
+
+    @Override
+    public Map<String, Object> getState() {
+        Map<String, Object> data = new HashMap<>();
+        data.put(STATE_PACKAGE_QUEUE_SIZE, packageQueue.size());
+
+        List<String> packageTypes = new ArrayList<>();
+        for (ActivityPackage activityPackage : packageQueue) {
+            packageTypes.add(activityPackage.getActivityKind().toString());
+        }
+        data.put(STATE_PACKAGE_QUEUE_TYPE_LIST, new JSONArray(Collections.singletonList(packageTypes)).toString());
+
+        return data;
     }
 }

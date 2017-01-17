@@ -6,6 +6,8 @@ import android.support.test.filters.*;
 import android.support.test.rule.*;
 import android.support.test.runner.*;
 
+import com.adjust.sdk.*;
+
 import org.junit.*;
 import org.junit.runner.*;
 
@@ -41,7 +43,15 @@ public class BasicTimeoutTest {
     @Test
     public void foo() {
         try {
-            Thread.sleep(15000);
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        AdjustAnalyzer.reportFooToRestApi("AAA");
+
+        try {
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

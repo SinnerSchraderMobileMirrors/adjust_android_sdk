@@ -54,7 +54,6 @@ public class BasicAttributionTest {
 
     @Test
     public void foo() {
-//        AdjustAnalyzer.reportFooToRestApi("AAA");
 
         try {
             Thread.sleep(3000);

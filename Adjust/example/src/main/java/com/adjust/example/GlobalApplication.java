@@ -124,16 +124,16 @@ public class GlobalApplication extends Application {
         Adjust.addSessionPartnerParameter("sp_key", "sp_value");
 
         // Remove session callback parameters.
-        Adjust.removeSessionCallbackParameter("sc_foo");
+//        Adjust.removeSessionCallbackParameter("sc_foo");
 
         // Remove session partner parameters.
-        Adjust.removeSessionPartnerParameter("sp_key");
+//        Adjust.removeSessionPartnerParameter("sp_key");
 
         // Remove all session callback parameters.
-        Adjust.resetSessionCallbackParameters();
+//        Adjust.resetSessionCallbackParameters();
 
         // Remove all session partner parameters.
-        Adjust.resetSessionPartnerParameters();
+//        Adjust.resetSessionPartnerParameters();
 
         // Initialise the adjust SDK.
         Adjust.onCreate(config);

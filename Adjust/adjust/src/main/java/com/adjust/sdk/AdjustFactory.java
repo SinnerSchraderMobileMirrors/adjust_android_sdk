@@ -6,6 +6,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import javax.net.ssl.*;
+
 public class AdjustFactory {
     private static IPackageHandler packageHandler = null;
     private static IRequestHandler requestHandler = null;
@@ -48,6 +50,16 @@ public class AdjustFactory {
                                                     boolean startsSending) {
         if (packageHandler == null) {
             packageHandler = new PackageHandler(activityHandler, context, startsSending);
+        }
+
+        return packageHandler;
+    }
+
+    public static IPackageHandler getPackageHandler() {
+        if (packageHandler == null) {
+            logger.error("Trying to retrieve PackageHandler without prior initialization. " +
+                    "Call Adjust.onCreate() first before calling this function");
+            return null;
         }
 
         return packageHandler;
@@ -126,7 +138,7 @@ public class AdjustFactory {
     public static IActivityHandler getActivityHandler() {
         if (activityHandler == null) {
             logger.error("Trying to retrieve ActivityHandler without AdjustConfig. " +
-                    "Call Adjust.create() first before calling this function");
+                    "Call Adjust.onCreate() first before calling this function");
             return null;
         }
 
@@ -144,23 +156,11 @@ public class AdjustFactory {
     }
 
     public static HttpURLConnection getHttpURLConnection(URL url) throws IOException {
-        if (httpURLConnection == null) {
-            httpURLConnection = (HttpURLConnection) url.openConnection();
-        }
-
-        Properties systemProperties = System.getProperties();
-        systemProperties.setProperty("http.proxyHost","http://www.google.com");
-        systemProperties.setProperty("http.proxyPort","8080");
-
-        return httpURLConnection;
+        return (HttpURLConnection) url.openConnection();
     }
 
     public static URLGetConnection getHttpURLGetConnection(URL url) throws IOException {
-        if (httpURLConnection == null) {
-            httpURLConnection = (HttpURLConnection) url.openConnection();
-        }
-
-        return new URLGetConnection(httpURLConnection, url);
+        return new URLGetConnection((HttpsURLConnection)url.openConnection(), url);
     }
 
     public static ISdkClickHandler getSdkClickHandler(boolean startsSending) {

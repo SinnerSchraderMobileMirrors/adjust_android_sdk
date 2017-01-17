@@ -26,17 +26,17 @@ public interface Constants {
     int SOCKET_TIMEOUT = Constants.ONE_MINUTE;
     int MAX_WAIT_INTERVAL = Constants.ONE_MINUTE;
 
-//    String BASE_URL = "https://app.adjust.com";
-//    String SCHEME = "https";
-//    String AUTHORITY = "app.adjust.com";
+    String BASE_URL = "https://app.adjust.com";
+    String SCHEME = "https";
+    String AUTHORITY = "app.adjust.com";
 
 //    String BASE_URL = "http://192.168.2.69:8081";
 //    String SCHEME = "http";
 //    String AUTHORITY = "192.168.2.69:8081";
 
-    String BASE_URL = "http://172.16.150.242:8081";
-    String SCHEME = "http";
-    String AUTHORITY = "172.16.150.242:8081";
+//    String BASE_URL = "http://172.16.150.242:8081";
+//    String SCHEME = "http";
+//    String AUTHORITY = "172.16.150.242:8081";
 
     String CLIENT_SDK = "android4.10.4";
     String LOGTAG = "Adjust";
@@ -86,11 +86,13 @@ public interface Constants {
     String STATE_IS_DEFERRED_DEEPLINK_CALLBACK_IMPLEMENTED = "is_deferred_deeplink_callback_implemented";
     String STATE_ALLOW_SUPPRESS_LOG_LEVEL = "allow_suppress_log_level";
     String STATE_USER_AGENT = "user_agent";
-    String STATE_LOG_LEVEL = "allow_suppress_log_level";
+    String STATE_LOG_LEVEL = "log_level";
     String STATE_APP_TOKEN = "app_token";
     String STATE_ENVIRONMENT = "environment";
     String STATE_PROCESS_NAME = "process_name";
     String STATE_SDK_PREFIX = "sdk_prefix";
+    String STATE_PACKAGE_QUEUE_SIZE = "package_queue_size";
+    String STATE_PACKAGE_QUEUE_TYPE_LIST = "package_queue_type_list";
 
     // List of known plugins, possibly not active
     List<String> PLUGINS = Arrays.asList();

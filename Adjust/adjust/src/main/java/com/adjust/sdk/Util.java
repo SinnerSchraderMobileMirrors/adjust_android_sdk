@@ -377,7 +377,9 @@ public class Util {
     }
 
     public static void setDefaultHttpUrlConnectionProperties(HttpURLConnection connection, String clientSdk) {
+        Log.d(TAG, "setDefaultHttpUrlConnectionProperties: 1");
         connection.setRequestProperty("Client-SDK", clientSdk);
+        Log.d(TAG, "setDefaultHttpUrlConnectionProperties: 2");
         connection.setConnectTimeout(Constants.ONE_MINUTE);
         connection.setReadTimeout(Constants.ONE_MINUTE);
         if (userAgent != null) {
@@ -583,6 +585,7 @@ public class Util {
     public static Map<String, String> mergeParameters(Map<String, String> target,
                                                       Map<String, String> source,
                                                       String parameterName) {
+        Log.d(TAG, "mergeParameters() called with: target = [" + target + "], source = [" + source + "], parameterName = [" + parameterName + "]");
         if (target == null) {
             return source;
         }
