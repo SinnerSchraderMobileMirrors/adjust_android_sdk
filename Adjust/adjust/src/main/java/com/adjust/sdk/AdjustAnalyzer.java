@@ -198,7 +198,7 @@ public final class AdjustAnalyzer {
         savedAdjustConfigState = new SavedAdjustConfigState(config);
     }
 
-    public static void reportFooToRestApi(String callsite) {
+    public static void reportState(String callsite) {
         final String targetURL = Constants.BASE_URL + "/state";
 
         //Tree map to have it organized (not sure why this is necessary. A regular map is also good)
@@ -315,7 +315,7 @@ public final class AdjustAnalyzer {
 
 
 /*
-    public static void reportFooToRestApi(String callsite) {
+    public static void reportState(String callsite) {
         final String targetURL = "http://172.16.150.242:8080/todos";
         final Map<String, String> map = new HashMap<>();
         map.put("name", callsite);

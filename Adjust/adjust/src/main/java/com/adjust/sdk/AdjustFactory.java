@@ -160,7 +160,7 @@ public class AdjustFactory {
     }
 
     public static URLGetConnection getHttpURLGetConnection(URL url) throws IOException {
-        return new URLGetConnection((HttpsURLConnection)url.openConnection(), url);
+        return new URLGetConnection((HttpURLConnection)url.openConnection(), url);
     }
 
     public static ISdkClickHandler getSdkClickHandler(boolean startsSending) {

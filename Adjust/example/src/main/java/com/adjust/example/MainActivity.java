@@ -3,7 +3,6 @@ package com.adjust.example;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.*;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,10 +11,6 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.adjust.sdk.*;
-
-import java.io.*;
-import java.net.*;
-import java.nio.charset.*;
 
 public class MainActivity extends AppCompatActivity {
     private static final String EVENT_TOKEN_SIMPLE = "g3mfiw";
@@ -137,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
     public void onServiceActivityClick(View v) {
 //        Intent intent = new Intent(this, ServiceActivity.class);
 //        startActivity(intent);
-        AdjustAnalyzer.reportFooToRestApi("aaa");
+        AdjustAnalyzer.reportState("aaa");
 //        final String request = Constants.BASE_URL + "/terminate";
 //        new AsyncTask<Void, Void, Void>() {
 //

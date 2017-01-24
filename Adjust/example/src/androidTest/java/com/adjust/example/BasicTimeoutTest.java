@@ -48,7 +48,7 @@ public class BasicTimeoutTest {
             e.printStackTrace();
         }
 
-        AdjustAnalyzer.reportFooToRestApi("AAA");
+        AdjustAnalyzer.reportState("AAA");
 
         try {
             Thread.sleep(1000);
