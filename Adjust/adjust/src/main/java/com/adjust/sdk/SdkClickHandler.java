@@ -119,7 +119,7 @@ public class SdkClickHandler implements ISdkClickHandler {
     }
 
     private void sendSdkClickI(ActivityPackage sdkClickPackage) {
-        String targetURL = Constants.BASE_URL + sdkClickPackage.getPath();
+        String targetURL = AdjustConfig.getBaseUrl() + sdkClickPackage.getPath();
 
         try {
             HttpURLConnection connection = Util.createPOSTHttpURLConnection(

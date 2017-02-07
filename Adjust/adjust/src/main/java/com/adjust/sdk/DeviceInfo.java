@@ -9,11 +9,12 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
-import android.util.DisplayMetrics;
+import android.util.*;
 
 import java.util.Locale;
 import java.util.Map;
 
+import static android.content.ContentValues.TAG;
 import static com.adjust.sdk.Constants.HIGH;
 import static com.adjust.sdk.Constants.LARGE;
 import static com.adjust.sdk.Constants.LONG;

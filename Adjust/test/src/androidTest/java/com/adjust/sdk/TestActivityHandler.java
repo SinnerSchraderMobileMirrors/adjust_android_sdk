@@ -63,7 +63,7 @@ public class TestActivityHandler {
         mockLogger.test("Was Session Partner Parameters deleted? " + ActivityHandler.deleteSessionPartnerParameters(context));
 
         // check the server url
-        assertUtil.isEqual(Constants.BASE_URL, "https://app.adjust.com");
+        assertUtil.isEqual(AdjustConfig.getBaseUrl(), "https://app.adjust.com");
     }
 
     @After

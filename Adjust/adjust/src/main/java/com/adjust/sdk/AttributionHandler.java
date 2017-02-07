@@ -1,12 +1,16 @@
 package com.adjust.sdk;
 
 import android.net.Uri;
+import android.util.*;
 
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.Map;
+
+import static android.R.attr.scheme;
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by pfms on 07/11/14.
@@ -32,7 +36,8 @@ public class AttributionHandler implements IAttributionHandler {
         if (scheduledExecutor != null) {
             try {
                 scheduledExecutor.shutdownNow();
-            } catch(SecurityException se) {}
+            } catch (SecurityException se) {
+            }
         }
         if (activityHandlerWeakRef != null) {
             activityHandlerWeakRef.clear();
@@ -205,7 +210,7 @@ public class AttributionHandler implements IAttributionHandler {
                 return;
             }
 
-            checkAttributionResponse((AttributionResponseData)responseData);
+            checkAttributionResponse((AttributionResponseData) responseData);
         } catch (Exception e) {
             logger.error("Failed to get attribution (%s)", e.getMessage());
             return;
@@ -215,10 +220,10 @@ public class AttributionHandler implements IAttributionHandler {
     private Uri buildUriI(String path, Map<String, String> parameters) {
         Uri.Builder uriBuilder = new Uri.Builder();
 
-        uriBuilder.scheme(Constants.SCHEME);
-//        uriBuilder.authority(Constants.AUTHORITY);
+        String[] urlSplit = AdjustConfig.getBaseUrl().split("://");
+        uriBuilder.scheme(urlSplit[0]);
         //Used .encodedAuthority() instead of .Authority() to allow inserting port numbers
-        uriBuilder.encodedAuthority(Constants.AUTHORITY);
+        uriBuilder.encodedAuthority(urlSplit[1]);
         uriBuilder.appendPath(path);
 
         for (Map.Entry<String, String> entry : parameters.entrySet()) {

@@ -30,13 +30,14 @@ public interface Constants {
 //    String SCHEME = "https";
 //    String AUTHORITY = "app.adjust.com";
 
-//    String BASE_URL = "http://192.168.2.69:8081";
+//    String BASE_URL = "http://192.168.2.71:8081";
+//    String BASE_URL = "https://app.adjust.com";
 //    String SCHEME = "http";
-//    String AUTHORITY = "192.168.2.69:8081";
+//    String AUTHORITY = "192.168.2.71:8081";
 
-    String BASE_URL = "http://172.16.150.242:8081";
-    String SCHEME = "http";
-    String AUTHORITY = "172.16.150.242:8081";
+//    String BASE_URL = "http://172.16.150.242:8081";
+//    String SCHEME = "http";
+//    String AUTHORITY = "172.16.150.242:8081";
 
     String CLIENT_SDK = "android4.10.4";
     String LOGTAG = "Adjust";

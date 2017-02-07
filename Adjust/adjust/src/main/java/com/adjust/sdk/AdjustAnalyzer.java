@@ -199,7 +199,7 @@ public final class AdjustAnalyzer {
     }
 
     public static void reportState(String callsite) {
-        final String targetURL = Constants.BASE_URL + "/state";
+        final String targetURL = AdjustConfig.getBaseUrl() + "/state";
 
         //Tree map to have it organized (not sure why this is necessary. A regular map is also good)
         Map<String, Object> map = new TreeMap<>();
@@ -253,6 +253,44 @@ public final class AdjustAnalyzer {
                     while ((output = br.readLine()) != null) {
                         Log.d("ADJUST", output);
                     }
+
+                    conn.disconnect();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        }.execute();
+    }
+
+    public static void terminate() {
+        final String targetURL = AdjustConfig.getBaseUrl() + "/terminate";
+
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... params) {
+                URL url = null;
+                try {
+                    url = new URL(targetURL);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setDoOutput(true);
+                    conn.setInstanceFollowRedirects(true);
+                    conn.setRequestMethod("POST");
+//                    conn.setRequestProperty("Content-Type", "application/json");
+
+//                    OutputStream os = conn.getOutputStream();
+//                    os.write(json.getBytes());
+//                    os.flush();
+
+                    Log.d("ADJUST", String.valueOf(conn.getResponseCode()));
+
+//                    BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+//
+//                    String output;
+//                    Log.d("ADJUST", "Output from Server .... \n");
+//                    while ((output = br.readLine()) != null) {
+//                        Log.d("ADJUST", output);
+//                    }
 
                     conn.disconnect();
                 } catch (IOException e) {
