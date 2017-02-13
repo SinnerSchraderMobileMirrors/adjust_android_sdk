@@ -42,41 +42,6 @@ public class BasicAttributionTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
         assertEquals("com.adjust.example", appContext.getPackageName());
-//        assertEquals("http://192.168.2.71:8081", AdjustConfig.getBaseUrl());
-//        assertEquals("http://172.16.150.242:8081", AdjustConfig.getBaseUrl());
-
-
-        assertEquals("1.0", getAppVersion_fake(appContext));
-        assertEquals("4.10.4", getAppVersion_good(appContext));
-
-        Log.d(TAG, "useAppContext: " + com.adjust.sdk.BuildConfig.VERSION_NAME);
-        Log.d(TAG, "useAppContext: " + com.adjust.sdk.BuildConfig.VERSION_CODE);
-        Log.d(TAG, "useAppContext: -----------------------");
-
-        Log.d(TAG, "useAppContext: " + com.adjust.example.BuildConfig.VERSION_NAME);
-        Log.d(TAG, "useAppContext: " + com.adjust.example.BuildConfig.VERSION_CODE);
-    }
-
-    private String getAppVersion_fake(Context context) {
-        try {
-            PackageManager packageManager = context.getPackageManager();
-            String name = "com.adjust.example";
-            PackageInfo info = packageManager.getPackageInfo(name, 0);
-            return info.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            return null;
-        }
-    }
-
-    private String getAppVersion_good(Context context) {
-        try {
-            PackageManager packageManager = context.getPackageManager();
-            String name = "com.adjust.sdk";
-            PackageInfo info = packageManager.getPackageInfo(name, 0);
-            return info.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            return null;
-        }
     }
 
     @Test

@@ -16,7 +16,8 @@ import com.squareup.leakcanary.LeakCanary;
 public class GlobalApplication extends Application {
     @Override
     public void onCreate() {
-        AdjustConfig.setBaseUrl("http://172.16.150.242:8081");
+//        AdjustConfig.setBaseUrl("http://172.16.150.242:8081");
+        AdjustConfig.setBaseUrl("http://192.168.2.75:8081");
 
         if (LeakCanary.isInAnalyzerProcess(this)) {
             // This process is dedicated to LeakCanary for heap analysis.
