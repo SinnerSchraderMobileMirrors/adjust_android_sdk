@@ -6,6 +6,7 @@ import android.support.test.filters.*;
 import android.support.test.rule.*;
 import android.support.test.runner.*;
 
+import com.adjust.analyzertest.*;
 import com.adjust.sdk.*;
 
 import org.junit.*;

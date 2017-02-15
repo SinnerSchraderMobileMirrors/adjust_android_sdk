@@ -17,6 +17,7 @@ public class AdjustFactory {
     private static HttpURLConnection httpURLConnection = null;
     private static ISdkClickHandler sdkClickHandler = null;
 
+    private static String baseUrl = "https://app.adjust.com";
     private static long timerInterval = -1;
     private static long timerStart = -1;
     private static long sessionInterval = -1;
@@ -43,6 +44,14 @@ public class AdjustFactory {
             this.httpURLConnection = httpURLConnection;
             this.url = url;
         }
+    }
+
+    public static String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public static void setBaseUrl(String baseUrl) {
+        AdjustFactory.baseUrl = baseUrl;
     }
 
     public static IPackageHandler getPackageHandler(ActivityHandler activityHandler,

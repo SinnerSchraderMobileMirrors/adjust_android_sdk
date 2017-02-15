@@ -9,8 +9,8 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}>>> Running adb uninstall ${NC}"
 adb uninstall com.adjust.example
 
-echo -e "${GREEN}>>> Forgetting device (in case the device was used elsewhere${NC}"
-curl http://app.adjust.com/forget_device\?app_token\=${APP_TOKEN}\&adid\=${ADID}; echo 
+#echo -e "${GREEN}>>> Forgetting device (in case the device was used elsewhere${NC}"
+#curl http://app.adjust.com/forget_device\?app_token\=${APP_TOKEN}\&adid\=${ADID}; echo 
 
 echo -e "${GREEN}>>> Run the test server ${NC}"
 cd ~/Dev/go
@@ -19,6 +19,6 @@ cd ~/Dev/go
 cd ~/Dev/android_sdk/Adjust
 ./gradlew example:connectedCheck -Pandroid.testInstrumentationRunnerArguments.class=com.adjust.example.BasicAttributionTest
 
-echo -e "${GREEN}>>> Terminate server test ${NC}"
-fg
-curl -X POST http://0.0.0.0:8081/terminate
+#echo -e "${GREEN}>>> Terminate server test ${NC}"
+#fg
+#curl -X POST http://0.0.0.0:8081/terminate

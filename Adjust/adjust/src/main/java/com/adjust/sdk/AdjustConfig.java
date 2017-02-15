@@ -48,7 +48,6 @@ public class AdjustConfig implements IStateable {
     ILogger logger;
     String userAgent;
     String pushToken;
-    private static String baseUrl = "https://app.adjust.com";
 
     public static final String ENVIRONMENT_SANDBOX = "sandbox";
     public static final String ENVIRONMENT_PRODUCTION = "production";
@@ -60,14 +59,6 @@ public class AdjustConfig implements IStateable {
 
     public AdjustConfig(Context context, String appToken, String environment, boolean allowSuppressLogLevel) {
         init(context, appToken, environment, allowSuppressLogLevel);
-    }
-
-    public static String getBaseUrl() {
-        return baseUrl;
-    }
-
-    public static void setBaseUrl(String baseUrl) {
-        AdjustConfig.baseUrl = baseUrl;
     }
 
     private void init(Context context, String appToken, String environment, boolean allowSuppressLogLevel) {

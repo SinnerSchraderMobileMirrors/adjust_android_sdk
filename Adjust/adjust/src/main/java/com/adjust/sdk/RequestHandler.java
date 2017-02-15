@@ -57,7 +57,7 @@ public class RequestHandler implements IRequestHandler {
     }
 
     private void sendI(ActivityPackage activityPackage, int queueSize) {
-        String targetURL = AdjustConfig.getBaseUrl() + activityPackage.getPath();
+        String targetURL = AdjustFactory.getBaseUrl() + activityPackage.getPath();
 
         try {
             HttpURLConnection connection = Util.createPOSTHttpURLConnection(

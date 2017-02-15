@@ -8,6 +8,7 @@ import android.support.test.rule.*;
 import android.support.test.runner.*;
 import android.util.*;
 
+import com.adjust.analyzertest.*;
 import com.adjust.sdk.*;
 import com.adjust.sdk.BuildConfig;
 

@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.adjust.analyzertest.*;
 import com.adjust.sdk.*;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,12 +36,7 @@ public class MainActivity extends AppCompatActivity {
         // Adjust UI according to SDK state.
         btnEnableDisableSDK = (Button) findViewById(R.id.btnEnableDisableSDK);
 
-        Log.d(TAG, "useAppContext: " + com.adjust.sdk.BuildConfig.VERSION_NAME);
-        Log.d(TAG, "useAppContext: " + com.adjust.sdk.BuildConfig.VERSION_CODE);
-        Log.d(TAG, "useAppContext: -----------------------");
-
-        Log.d(TAG, "useAppContext: " + com.adjust.example.BuildConfig.VERSION_NAME);
-        Log.d(TAG, "useAppContext: " + com.adjust.example.BuildConfig.VERSION_CODE);
+        FooTest.foo();
     }
 
     @Override

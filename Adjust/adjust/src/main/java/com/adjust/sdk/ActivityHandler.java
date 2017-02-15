@@ -27,12 +27,27 @@ import static com.adjust.sdk.Constants.ACTIVITY_STATE_FILENAME;
 import static com.adjust.sdk.Constants.ATTRIBUTION_FILENAME;
 import static com.adjust.sdk.Constants.SESSION_CALLBACK_PARAMETERS_FILENAME;
 import static com.adjust.sdk.Constants.SESSION_PARTNER_PARAMETERS_FILENAME;
+import static com.adjust.sdk.Constants.STATE_ALLOW_SUPPRESS_LOG_LEVEL;
+import static com.adjust.sdk.Constants.STATE_APP_TOKEN;
 import static com.adjust.sdk.Constants.STATE_BACKGROUND_ENABLED;
 import static com.adjust.sdk.Constants.STATE_CALLBACK_PARAMETERS;
+import static com.adjust.sdk.Constants.STATE_DEFAULT_TRACKER;
+import static com.adjust.sdk.Constants.STATE_DELAY_START;
+import static com.adjust.sdk.Constants.STATE_ENVIRONMENT;
+import static com.adjust.sdk.Constants.STATE_IS_ATTRIBUTION_CALLBACK_IMPLEMENNTED;
+import static com.adjust.sdk.Constants.STATE_IS_DEFERRED_DEEPLINK_CALLBACK_IMPLEMENTED;
+import static com.adjust.sdk.Constants.STATE_IS_EVENT_TRACKING_FAILED_CALLBACK_IMPLEMENTED;
+import static com.adjust.sdk.Constants.STATE_IS_EVENT_TRACKING_SUCCEEDED_CALLBACK_IMPLEMENTED;
+import static com.adjust.sdk.Constants.STATE_IS_SESSION_TRACKING_FAILED_CALLBACK_IMPLEMENTED;
+import static com.adjust.sdk.Constants.STATE_IS_SESSION_TRACKING_SUCCEEDED_CALLBACK_IMPLEMENTED;
 import static com.adjust.sdk.Constants.STATE_PARTNER_PARAMETERS;
+import static com.adjust.sdk.Constants.STATE_PROCESS_NAME;
+import static com.adjust.sdk.Constants.STATE_REFERRER;
 import static com.adjust.sdk.Constants.STATE_SDK_ENABLED;
 import static com.adjust.sdk.Constants.STATE_SDK_OFFLINE;
+import static com.adjust.sdk.Constants.STATE_SDK_PREFIX;
 import static com.adjust.sdk.Constants.STATE_TO_UPDATE_PACKAGES;
+import static com.adjust.sdk.Constants.STATE_USER_AGENT;
 
 public class ActivityHandler implements IActivityHandler {
     private static long FOREGROUND_TIMER_INTERVAL;
@@ -1652,6 +1667,22 @@ public class ActivityHandler implements IActivityHandler {
         data.put(STATE_SDK_OFFLINE, internalState.offline);
         data.put(STATE_BACKGROUND_ENABLED, internalState.background);
         data.put(STATE_TO_UPDATE_PACKAGES, internalState.updatePackages);
+        data.put(STATE_DEFAULT_TRACKER, adjustConfig.defaultTracker);
+        data.put(STATE_IS_ATTRIBUTION_CALLBACK_IMPLEMENNTED, adjustConfig.onAttributionChangedListener != null);
+        data.put(STATE_IS_EVENT_TRACKING_SUCCEEDED_CALLBACK_IMPLEMENTED, adjustConfig.onEventTrackingSucceededListener != null);
+        data.put(STATE_IS_EVENT_TRACKING_FAILED_CALLBACK_IMPLEMENTED, adjustConfig.onEventTrackingFailedListener != null);
+        data.put(STATE_IS_SESSION_TRACKING_SUCCEEDED_CALLBACK_IMPLEMENTED, adjustConfig.onSessionTrackingSucceededListener != null);
+        data.put(STATE_IS_SESSION_TRACKING_FAILED_CALLBACK_IMPLEMENTED, adjustConfig.onSessionTrackingFailedListener != null);
+        data.put(STATE_IS_DEFERRED_DEEPLINK_CALLBACK_IMPLEMENTED, adjustConfig.onDeeplinkResponseListener != null);
+        data.put(STATE_ALLOW_SUPPRESS_LOG_LEVEL, adjustConfig.allowSuppressLogLevel);
+        data.put(STATE_USER_AGENT, adjustConfig.userAgent);
+        data.put(STATE_APP_TOKEN, adjustConfig.appToken);
+        data.put(STATE_ENVIRONMENT, adjustConfig.environment);
+        data.put(STATE_PROCESS_NAME, adjustConfig.processName);
+        data.put(STATE_BACKGROUND_ENABLED, adjustConfig.sendInBackground);
+        data.put(STATE_SDK_PREFIX, adjustConfig.sdkPrefix);
+        data.put(STATE_REFERRER, adjustConfig.referrer);
+        data.put(STATE_DELAY_START, adjustConfig.delayStart);
         //data.put(STATE_PUSH_TOKEN, activityState.pushToken);
 
         if (sessionParameters != null) {

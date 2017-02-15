@@ -220,7 +220,7 @@ public class AttributionHandler implements IAttributionHandler {
     private Uri buildUriI(String path, Map<String, String> parameters) {
         Uri.Builder uriBuilder = new Uri.Builder();
 
-        String[] urlSplit = AdjustConfig.getBaseUrl().split("://");
+        String[] urlSplit = AdjustFactory.getBaseUrl().split("://");
         uriBuilder.scheme(urlSplit[0]);
         //Used .encodedAuthority() instead of .Authority() to allow inserting port numbers
         uriBuilder.encodedAuthority(urlSplit[1]);

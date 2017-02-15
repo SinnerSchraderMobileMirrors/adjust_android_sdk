@@ -1,7 +1,9 @@
-package com.adjust.sdk;
+package com.adjust.analyzertest;
 
 import android.os.*;
 import android.util.*;
+
+import com.adjust.sdk.*;
 
 import org.json.*;
 
@@ -31,74 +33,75 @@ import static com.adjust.sdk.Constants.STATE_USER_AGENT;
  */
 
 public final class AdjustAnalyzer {
-    private static SavedAdjustConfigState savedAdjustConfigState = null;
+    private static boolean didInit = false;
+//    private static SavedAdjustConfigState savedAdjustConfigState = null;
 
-    public static class SavedAdjustConfigState implements IStateable {
-        public SavedAdjustConfigState(AdjustConfig adjustConfig) {
-            appToken = adjustConfig.appToken;
-            environment = adjustConfig.environment;
-            processName = adjustConfig.processName;
-            sdkPrefix = adjustConfig.sdkPrefix;
-            eventBufferingEnabled = adjustConfig.eventBufferingEnabled;
-            defaultTracker = adjustConfig.defaultTracker;
-            referrer = adjustConfig.referrer;
-            referrerClickTime = adjustConfig.referrerClickTime;
-            deviceKnown = adjustConfig.deviceKnown;
-            isOnAttributionChangedListenerSet = adjustConfig.onAttributionChangedListener != null;
-            isOnEventTrackingSucceededListenerSet = adjustConfig.onEventTrackingSucceededListener != null;
-            isOnEventTrackingFailedListenerSet = adjustConfig.onEventTrackingFailedListener != null;
-            isOnSessionTrackingSucceededListenerSet = adjustConfig.onSessionTrackingSucceededListener != null;
-            isOnSessionTrackingFailedListenerSet = adjustConfig.onSessionTrackingFailedListener != null;
-            isOnDeeplinkResponseListenerSet = adjustConfig.onDeeplinkResponseListener != null;
-            sendInBackground = adjustConfig.sendInBackground;
-            delayStart = adjustConfig.delayStart;
-            allowSuppressLogLevel = adjustConfig.allowSuppressLogLevel;
-            userAgent = adjustConfig.userAgent;
-        }
-
-        private String appToken;
-        private String environment;
-        private String processName;
-        private String sdkPrefix;
-        private boolean eventBufferingEnabled;
-        private String defaultTracker;
-        private String referrer;
-        private long referrerClickTime;
-        private Boolean deviceKnown;
-        private boolean isOnAttributionChangedListenerSet;
-        private boolean isOnEventTrackingSucceededListenerSet;
-        private boolean isOnEventTrackingFailedListenerSet;
-        private boolean isOnSessionTrackingSucceededListenerSet;
-        private boolean isOnSessionTrackingFailedListenerSet;
-        private boolean isOnDeeplinkResponseListenerSet;
-        private boolean sendInBackground;
-        private Double delayStart;
-        private boolean allowSuppressLogLevel;
-        private String userAgent;
-
-        @Override
-        public Map<String, Object> getState() {
-            Map<String, Object> data = new HashMap<>();
-            data.put(STATE_DEFAULT_TRACKER, defaultTracker);
-            data.put(STATE_IS_ATTRIBUTION_CALLBACK_IMPLEMENNTED, isOnAttributionChangedListenerSet);
-            data.put(STATE_IS_EVENT_TRACKING_SUCCEEDED_CALLBACK_IMPLEMENTED, isOnEventTrackingSucceededListenerSet);
-            data.put(STATE_IS_EVENT_TRACKING_FAILED_CALLBACK_IMPLEMENTED, isOnEventTrackingFailedListenerSet);
-            data.put(STATE_IS_SESSION_TRACKING_SUCCEEDED_CALLBACK_IMPLEMENTED, isOnSessionTrackingSucceededListenerSet);
-            data.put(STATE_IS_SESSION_TRACKING_FAILED_CALLBACK_IMPLEMENTED, isOnSessionTrackingFailedListenerSet);
-            data.put(STATE_IS_DEFERRED_DEEPLINK_CALLBACK_IMPLEMENTED, isOnDeeplinkResponseListenerSet);
-            data.put(STATE_ALLOW_SUPPRESS_LOG_LEVEL, allowSuppressLogLevel);
-            data.put(STATE_USER_AGENT, userAgent);
-            data.put(STATE_APP_TOKEN, appToken);
-            data.put(STATE_ENVIRONMENT, environment);
-            data.put(STATE_PROCESS_NAME, processName);
-            data.put(STATE_BACKGROUND_ENABLED, sendInBackground);
-            data.put(STATE_SDK_PREFIX, sdkPrefix);
-            data.put(STATE_REFERRER, referrer);
-            data.put(STATE_DELAY_START, delayStart);
-
-            return data;
-        }
-    }
+//    public static class SavedAdjustConfigState implements IStateable {
+//        public SavedAdjustConfigState(AdjustConfig adjustConfig) {
+//            appToken = adjustConfig.appToken;
+//            environment = adjustConfig.environment;
+//            processName = adjustConfig.processName;
+//            sdkPrefix = adjustConfig.sdkPrefix;
+//            eventBufferingEnabled = adjustConfig.eventBufferingEnabled;
+//            defaultTracker = adjustConfig.defaultTracker;
+//            referrer = adjustConfig.referrer;
+//            referrerClickTime = adjustConfig.referrerClickTime;
+//            deviceKnown = adjustConfig.deviceKnown;
+//            isOnAttributionChangedListenerSet = adjustConfig.onAttributionChangedListener != null;
+//            isOnEventTrackingSucceededListenerSet = adjustConfig.onEventTrackingSucceededListener != null;
+//            isOnEventTrackingFailedListenerSet = adjustConfig.onEventTrackingFailedListener != null;
+//            isOnSessionTrackingSucceededListenerSet = adjustConfig.onSessionTrackingSucceededListener != null;
+//            isOnSessionTrackingFailedListenerSet = adjustConfig.onSessionTrackingFailedListener != null;
+//            isOnDeeplinkResponseListenerSet = adjustConfig.onDeeplinkResponseListener != null;
+//            sendInBackground = adjustConfig.sendInBackground;
+//            delayStart = adjustConfig.delayStart;
+//            allowSuppressLogLevel = adjustConfig.allowSuppressLogLevel;
+//            userAgent = adjustConfig.userAgent;
+//        }
+//
+//        private String appToken;
+//        private String environment;
+//        private String processName;
+//        private String sdkPrefix;
+//        private boolean eventBufferingEnabled;
+//        private String defaultTracker;
+//        private String referrer;
+//        private long referrerClickTime;
+//        private Boolean deviceKnown;
+//        private boolean isOnAttributionChangedListenerSet;
+//        private boolean isOnEventTrackingSucceededListenerSet;
+//        private boolean isOnEventTrackingFailedListenerSet;
+//        private boolean isOnSessionTrackingSucceededListenerSet;
+//        private boolean isOnSessionTrackingFailedListenerSet;
+//        private boolean isOnDeeplinkResponseListenerSet;
+//        private boolean sendInBackground;
+//        private Double delayStart;
+//        private boolean allowSuppressLogLevel;
+//        private String userAgent;
+//
+//        @Override
+//        public Map<String, Object> getState() {
+//            Map<String, Object> data = new HashMap<>();
+//            data.put(STATE_DEFAULT_TRACKER, defaultTracker);
+//            data.put(STATE_IS_ATTRIBUTION_CALLBACK_IMPLEMENNTED, isOnAttributionChangedListenerSet);
+//            data.put(STATE_IS_EVENT_TRACKING_SUCCEEDED_CALLBACK_IMPLEMENTED, isOnEventTrackingSucceededListenerSet);
+//            data.put(STATE_IS_EVENT_TRACKING_FAILED_CALLBACK_IMPLEMENTED, isOnEventTrackingFailedListenerSet);
+//            data.put(STATE_IS_SESSION_TRACKING_SUCCEEDED_CALLBACK_IMPLEMENTED, isOnSessionTrackingSucceededListenerSet);
+//            data.put(STATE_IS_SESSION_TRACKING_FAILED_CALLBACK_IMPLEMENTED, isOnSessionTrackingFailedListenerSet);
+//            data.put(STATE_IS_DEFERRED_DEEPLINK_CALLBACK_IMPLEMENTED, isOnDeeplinkResponseListenerSet);
+//            data.put(STATE_ALLOW_SUPPRESS_LOG_LEVEL, allowSuppressLogLevel);
+//            data.put(STATE_USER_AGENT, userAgent);
+//            data.put(STATE_APP_TOKEN, appToken);
+//            data.put(STATE_ENVIRONMENT, environment);
+//            data.put(STATE_PROCESS_NAME, processName);
+//            data.put(STATE_BACKGROUND_ENABLED, sendInBackground);
+//            data.put(STATE_SDK_PREFIX, sdkPrefix);
+//            data.put(STATE_REFERRER, referrer);
+//            data.put(STATE_DELAY_START, delayStart);
+//
+//            return data;
+//        }
+//    }
 
     private AdjustAnalyzer() {
 
@@ -193,22 +196,24 @@ public final class AdjustAnalyzer {
 //        }.execute(json);
 //    }
 
-    public static void init(AdjustConfig config) {
-        //Save the state of Adjust Config
-        savedAdjustConfigState = new SavedAdjustConfigState(config);
+    public static void init(String baseUrl) {
+        AdjustFactory.setBaseUrl(baseUrl);
+        AdjustAnalyzer.didInit = true;
     }
 
     public static void reportState(String callsite) {
-        final String targetURL = AdjustConfig.getBaseUrl() + "/state";
+        if (!didInit) {
+            AdjustFactory.getLogger().error("Init not called. Please call init before running Adjust.onCreate()");
+            return;
+        }
+
+        final String targetURL = AdjustFactory.getBaseUrl() + "/state";
 
         //Tree map to have it organized (not sure why this is necessary. A regular map is also good)
         Map<String, Object> map = new TreeMap<>();
 
         //append callsite as first parameter
         map.put("call_site", callsite);
-
-        //Append AdjustConfig's state
-        map.putAll(savedAdjustConfigState.getState());
 
         //Activity handler's state
         ActivityHandler activityHandler = (ActivityHandler) AdjustFactory.getActivityHandler();
@@ -264,7 +269,12 @@ public final class AdjustAnalyzer {
     }
 
     public static void terminate() {
-        final String targetURL = AdjustConfig.getBaseUrl() + "/terminate";
+        if (!didInit) {
+            AdjustFactory.getLogger().error("Init not called. Please call init before running Adjust.onCreate()");
+            return;
+        }
+
+        final String targetURL = AdjustFactory.getBaseUrl() + "/terminate";
 
         new AsyncTask<String, Void, Void>() {
             @Override

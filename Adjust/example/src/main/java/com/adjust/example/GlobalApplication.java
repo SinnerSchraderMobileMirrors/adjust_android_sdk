@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 
+import com.adjust.analyzertest.*;
 import com.adjust.sdk.*;
 import com.squareup.leakcanary.LeakCanary;
 
@@ -17,7 +18,7 @@ public class GlobalApplication extends Application {
     @Override
     public void onCreate() {
 //        AdjustConfig.setBaseUrl("http://172.16.150.242:8081");
-        AdjustConfig.setBaseUrl("http://192.168.2.75:8081");
+//        AdjustFactory.setBaseUrl("http://192.168.2.75:8081");
 
         if (LeakCanary.isInAnalyzerProcess(this)) {
             // This process is dedicated to LeakCanary for heap analysis.
@@ -139,8 +140,9 @@ public class GlobalApplication extends Application {
 //        Adjust.resetSessionPartnerParameters();
 
         // Initialise the adjust SDK.
+        AdjustAnalyzer.init("http://172.16.150.242:8080");
+//        AdjustAnalyzer.init(config, "http://192.168.2.75:8081");
         Adjust.onCreate(config);
-        AdjustAnalyzer.init(config);
 
         // Abort delay for the first session introduced with setDelayStart method.
         // Adjust.sendFirstPackages();
@@ -172,18 +174,23 @@ public class GlobalApplication extends Application {
         }
 
         @Override
-        public void onActivityStopped(Activity activity) {}
+        public void onActivityStopped(Activity activity) {
+        }
 
         @Override
-        public void onActivitySaveInstanceState(Activity activity, Bundle outState) {}
+        public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+        }
 
         @Override
-        public void onActivityDestroyed(Activity activity) {}
+        public void onActivityDestroyed(Activity activity) {
+        }
 
         @Override
-        public void onActivityCreated(Activity activity, Bundle savedInstanceState) {}
+        public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+        }
 
         @Override
-        public void onActivityStarted(Activity activity) {}
+        public void onActivityStarted(Activity activity) {
+        }
     }
 }
