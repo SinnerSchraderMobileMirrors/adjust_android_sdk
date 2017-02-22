@@ -5,6 +5,8 @@ GREEN='\033[0;32m' # Green color
 NC='\033[0m' # No Color
 #ADID=9166f13cb531a27021b7d0442463f89e
 #APP_TOKEN=2fm9gkqubvpc
+PACKAGE_NAME=com.adjust.example
+MAIN_ACTIVITY_NAME=MainActivity
 
 echo -e "${GREEN}>>> Running adb uninstall ${NC}"
 adb uninstall com.adjust.example
@@ -17,7 +19,9 @@ cd ~/Dev/go
 ./bin/sdk_analyzer 1 &
 
 cd ~/Dev/android_sdk/Adjust
-./gradlew example:connectedCheck -Pandroid.testInstrumentationRunnerArguments.class=com.adjust.example.BasicAttributionTest
+./gradlew clean assembleDebug example:installDebug
+adb shell am start -n ${PACKAGE_NAME}/.${MAIN_ACTIVITY_NAME}
+#./gradlew example:connectedCheck -Pandroid.testInstrumentationRunnerArguments.class=com.adjust.example.BasicAttributionTest
 
 #echo -e "${GREEN}>>> Terminate server test ${NC}"
 #fg

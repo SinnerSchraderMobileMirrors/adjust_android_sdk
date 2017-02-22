@@ -14,6 +14,8 @@ import android.widget.Toast;
 import com.adjust.analyzertest.*;
 import com.adjust.sdk.*;
 
+import java.util.*;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
@@ -36,7 +38,14 @@ public class MainActivity extends AppCompatActivity {
         // Adjust UI according to SDK state.
         btnEnableDisableSDK = (Button) findViewById(R.id.btnEnableDisableSDK);
 
-        FooTest.foo();
+        AdjustAnalyzer.executeCommands(new AdjustAnalyzer.AnalyzerCallback() {
+            @Override
+            public void onPostGetCommands(AdjustAnalyzer.Command[] myCommands) {
+                AnalyzerDictionary.executeCommand(myCommands);
+            }
+        });
+
+//        FooTest.foo();
     }
 
     @Override

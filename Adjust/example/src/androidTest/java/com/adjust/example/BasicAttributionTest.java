@@ -8,7 +8,6 @@ import android.support.test.rule.*;
 import android.support.test.runner.*;
 import android.util.*;
 
-import com.adjust.analyzertest.*;
 import com.adjust.sdk.*;
 import com.adjust.sdk.BuildConfig;
 
@@ -47,7 +46,7 @@ public class BasicAttributionTest {
 
     @Test
     public void foo() {
-        AdjustAnalyzer.reportState("callsite A");
+//        AdjustAnalyzer.reportState("callsite A");
 
         try {
             Thread.sleep(3000);
@@ -55,6 +54,6 @@ public class BasicAttributionTest {
             e.printStackTrace();
         }
 
-        AdjustAnalyzer.terminate();
+//        AdjustAnalyzer.terminate();
     }
 }

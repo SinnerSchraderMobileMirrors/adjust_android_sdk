@@ -5,8 +5,9 @@ import android.support.test.*;
 import android.support.test.filters.*;
 import android.support.test.rule.*;
 import android.support.test.runner.*;
+import android.test.suitebuilder.annotation.*;
 
-import com.adjust.analyzertest.*;
+//import com.adjust.analyzertest.*;
 import com.adjust.sdk.*;
 
 import org.junit.*;
@@ -19,7 +20,7 @@ import static junit.framework.Assert.*;
  */
 
 @RunWith(AndroidJUnit4.class)
-@LargeTest
+//@LargeTest
 /**
  * - Start
  * - SDK would send first `Session` package to backend
@@ -49,7 +50,7 @@ public class BasicTimeoutTest {
             e.printStackTrace();
         }
 
-        AdjustAnalyzer.reportState("AAA");
+//        AdjustAnalyzer.reportState("AAA");
 
         try {
             Thread.sleep(1000);

@@ -1,0 +1,111 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+    }
+}
+
+dependencies {
+    //    compile files('libs/adjust.jar')
+    compile project(':adjust')
+    compile 'com.google.code.gson:gson:2.8.0'
+}
+
+//repositories {
+//    flatDir(dirs: file('libs'))
+//}
+//
+//configurations {
+//    compile { transitive = false }
+//    runtime.exclude module:'adjust'
+//}
+//
+//dependencies {
+//    compile ':adjust@jar'
+//}
+
+task clearJar(type: Delete) {
+    delete "build/outputs/adjust-testing.jar"
+}
+
+task makeJar(type: Copy) {
+    from('build/intermediates/bundles/release/')
+    into('build/outputs/')
+    include('classes.jar')
+    rename ('classes.jar', "adjust-testing.jar")
+}
+
+makeJar.dependsOn(clearJar, build)
+
+//task androidJavadocs(type: Javadoc) {
+//    source = android.sourceSets.main.java.srcDirs
+//}
+//
+//task androidJavadocsJar(type: Jar) {
+//    classifier = 'javadoc'
+//    from androidJavadocs.destinationDir
+//}
+//
+//task androidSourcesJar(type: Jar) {
+//    classifier = 'sources'
+//    from android.sourceSets.main.java.srcDirs
+//}
+
+//artifacts {
+//    archives androidSourcesJar
+//    archives androidJavadocsJar
+//}
+
+//mainClassName = "com.company.application.Main"
+
+//jar {
+////    manifest {
+//////        attributes "Main-Class": "$mainClassName"
+////    }
+//
+//    from {
+//        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+//    }
+//}
+//task makeJar(type: Copy) {
+//    from('build/intermediates/bundles/release/')
+//    into('build/outputs/')
+//    include('classes.jar')
+//    rename ('classes.jar', "adjust-testing-${Globals.versionName}.jar")
+//}
+//
+//task fatJar(type: Jar) {
+//    baseName = project.name + '-all'
+//    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+//    with jar
+//}
+
+//jar {
+//    manifest {
+//        attributes(
+//                'Main-Class': 'my.project.main',
+//        )
+//    }
+//}
+//
+//task fatJar(type: Jar) {
+//    manifest.from jar.manifest
+//    classifier = 'all'
+//    from {
+//        configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+//    } {
+//        exclude "META-INF/*.SF"
+//        exclude "META-INF/*.DSA"
+//        exclude "META-INF/*.RSA"
+//    }
+//    with jar
+//}
+
+
