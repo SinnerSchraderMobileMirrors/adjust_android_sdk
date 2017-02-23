@@ -30,8 +30,6 @@ public final class AdjustAnalyzer {
     public static void init(String baseUrl) {
         AdjustFactory.setBaseUrl(baseUrl);
         AdjustAnalyzer.didInit = true;
-
-        AdjustAnalyzer.getCommands();
     }
 
     public static void reportState(String callsite) {
@@ -144,16 +142,14 @@ public final class AdjustAnalyzer {
         }.execute();
     }
 
-    private static void getCommands() {
-    }
-
     public static void executeCommands(final AnalyzerCallback analyzerCallback) {
         if (!didInit) {
             AdjustFactory.getLogger().error("Init not called. Please call init before running Adjust.onCreate()");
             return;
         }
 
-        final String targetURL = "http://pastebin.com/raw/CVwjpuaW";
+        // TODO: 23/02/2017 Replace with a call to our backend server
+        final String targetURL = "http://pastebin.com/raw/uc3AktRF";
 
         new AsyncTask<String, Void, String>() {
             HttpURLConnection conn = null;

@@ -27,12 +27,32 @@ public class AdjustFactory {
     private static long maxDelayStart = -1;
 
     public static void teardown() {
+        if (packageHandler != null) {
+            packageHandler.teardown(true);
+        }
         packageHandler = null;
+
+        if (requestHandler != null) {
+            requestHandler.teardown();
+        }
         requestHandler = null;
+
+        if (attributionHandler != null) {
+            attributionHandler.teardown();
+        }
         attributionHandler = null;
+
+        if (activityHandler != null) {
+            activityHandler.teardown(true);
+        }
         activityHandler = null;
+
         logger = null;
         httpURLConnection = null;
+
+        if (sdkClickHandler != null) {
+            sdkClickHandler.teardown();
+        }
         sdkClickHandler = null;
     }
 
@@ -169,7 +189,7 @@ public class AdjustFactory {
     }
 
     public static URLGetConnection getHttpURLGetConnection(URL url) throws IOException {
-        return new URLGetConnection((HttpURLConnection)url.openConnection(), url);
+        return new URLGetConnection((HttpURLConnection) url.openConnection(), url);
     }
 
     public static ISdkClickHandler getSdkClickHandler(boolean startsSending) {
