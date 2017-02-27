@@ -6,6 +6,8 @@ import android.util.*;
 
 import com.adjust.analyzertest.*;
 import com.adjust.sdk.*;
+import com.google.gson.*;
+import com.google.gson.annotations.*;
 
 import java.util.*;
 
@@ -16,14 +18,16 @@ import java.util.*;
 public final class AnalyzerDictionary {
     private static final String TAG = "AnalyzerDictionary";
 
-    public static void executeCommand(final AdjustAnalyzer.Command[] commands) {
+    public static void executeCommand(final String jsonString) {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                for (AdjustAnalyzer.Command command : commands) {
+
+                Command[] commands = new Gson().fromJson(jsonString, Command[].class);
+                for (Command command : commands) {
                     String callingClass = command.getCallingClass();
                     String funcName = command.getFuncName();
-                    List<AdjustAnalyzer.Param> params = command.getParams();
+                    List<Param> params = command.getParams();
 
                     Log.d(TAG, "run: Running command: " + command.toString());
 
@@ -51,7 +55,7 @@ public final class AnalyzerDictionary {
     }
 
     private static class Dictionary_AdjustAnalyzer {
-        public static void receiveCommand(String funcName, List<AdjustAnalyzer.Param> params) {
+        public static void receiveCommand(String funcName, List<Param> params) {
             switch (funcName) {
                 case "reportState":
                     String callSite = Dictionary_Util.getParam_String(params, "callSite");
@@ -65,7 +69,7 @@ public final class AnalyzerDictionary {
     }
 
     private static class Dictionary_System {
-        public static void receiveCommand(String funcName, List<AdjustAnalyzer.Param> params) {
+        public static void receiveCommand(String funcName, List<Param> params) {
             switch (funcName) {
                 case "sleep":
                     long mills = Dictionary_Util.getParam_Long(params, "mills");
@@ -81,7 +85,7 @@ public final class AnalyzerDictionary {
     }
 
     private static class Dictionary_Adjust {
-        public static void receiveCommand(String funcName, List<AdjustAnalyzer.Param> params) {
+        public static void receiveCommand(String funcName, List<Param> params) {
             switch (funcName) {
                 case "onCreate":
                     String appToken = Dictionary_Util.getParam_String(params, "appToken");
@@ -102,7 +106,7 @@ public final class AnalyzerDictionary {
     }
 
     private static class Dictionary_AdjustFactory {
-        public static void receiveCommand(String funcName, List<AdjustAnalyzer.Param> params) {
+        public static void receiveCommand(String funcName, List<Param> params) {
             switch (funcName) {
                 case "tearDown":
                     AdjustFactory.teardown();
@@ -112,8 +116,8 @@ public final class AnalyzerDictionary {
     }
 
     private static class Dictionary_Util {
-        public static String getParam_String(List<AdjustAnalyzer.Param> params, String name) {
-            for (AdjustAnalyzer.Param param : params) {
+        public static String getParam_String(List<Param> params, String name) {
+            for (Param param : params) {
                 if (param.getName().equals(name)) {
                     return param.getValue();
                 }
@@ -122,8 +126,8 @@ public final class AnalyzerDictionary {
             throw new WrongDictionaryNameSupplied();
         }
 
-        public static int getParam_Int(List<AdjustAnalyzer.Param> params, String name) {
-            for (AdjustAnalyzer.Param param : params) {
+        public static int getParam_Int(List<Param> params, String name) {
+            for (Param param : params) {
                 if (param.getName().equals(name)) {
                     try {
                         return Integer.parseInt(param.getValue());
@@ -136,8 +140,8 @@ public final class AnalyzerDictionary {
             throw new WrongDictionaryNameSupplied();
         }
 
-        public static long getParam_Long(List<AdjustAnalyzer.Param> params, String name) {
-            for (AdjustAnalyzer.Param param : params) {
+        public static long getParam_Long(List<Param> params, String name) {
+            for (Param param : params) {
                 if (param.getName().equals(name)) {
                     try {
                         return Long.parseLong(param.getValue());
@@ -150,8 +154,8 @@ public final class AnalyzerDictionary {
             throw new WrongDictionaryNameSupplied();
         }
 
-        public static Boolean getParam_Boolean(List<AdjustAnalyzer.Param> params, String name) {
-            for (AdjustAnalyzer.Param param : params) {
+        public static Boolean getParam_Boolean(List<Param> params, String name) {
+            for (Param param : params) {
                 if (param.getName().equals(name)) {
                     try {
                         return Boolean.parseBoolean(param.getValue());
@@ -168,6 +172,66 @@ public final class AnalyzerDictionary {
     public static class WrongDictionaryNameSupplied extends RuntimeException {
         public WrongDictionaryNameSupplied() {
             super("Wrong name supplied to dictionary");
+        }
+    }
+
+
+    public static class Command {
+        @SerializedName("class")
+        @Expose
+        private String mClass;
+        @SerializedName("funcName")
+        @Expose
+        private String mFuncName;
+        @SerializedName("params")
+        @Expose
+        private List<Param> mParams;
+
+        public Command(String mClass, String mFuncName, List<Param> mParams) {
+            this.mClass = mClass;
+            this.mFuncName = mFuncName;
+            this.mParams = mParams;
+        }
+
+        public String getCallingClass() {
+            return mClass;
+        }
+
+        public String getFuncName() {
+            return mFuncName;
+        }
+
+        public List<Param> getParams() {
+            return mParams;
+        }
+
+        @Override
+        public String toString() {
+            return "class: " + mClass + "\n"
+                    + "funcName: " + mFuncName + "\n"
+                    + "Param size: " + mParams.size() + "\n";
+        }
+    }
+
+    public static class Param {
+        @SerializedName("name")
+        @Expose
+        private String mName;
+        @SerializedName("value")
+        @Expose
+        private String mValue;
+
+        public Param(String mName, String mValue) {
+            this.mName = mName;
+            this.mValue = mValue;
+        }
+
+        public String getValue() {
+            return mValue;
+        }
+
+        public String getName() {
+            return mName;
         }
     }
 }

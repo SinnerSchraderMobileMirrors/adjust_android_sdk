@@ -15,7 +15,6 @@ android {
 dependencies {
     //    compile files('libs/adjust.jar')
     compile project(':adjust')
-    compile 'com.google.code.gson:gson:2.8.0'
 }
 
 //repositories {

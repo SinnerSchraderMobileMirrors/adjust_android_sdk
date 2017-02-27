@@ -21,7 +21,6 @@ import static android.content.ContentValues.TAG;
 
 public final class AdjustAnalyzer {
     private static boolean didInit = false;
-    private static Command[] myCommands;
 
     private AdjustAnalyzer() {
 
@@ -148,8 +147,7 @@ public final class AdjustAnalyzer {
             return;
         }
 
-        // TODO: 23/02/2017 Replace with a call to our backend server
-        final String targetURL = "http://pastebin.com/raw/uc3AktRF";
+        final String targetURL = AdjustFactory.getBaseUrl() + "/commands";
 
         new AsyncTask<String, Void, String>() {
             HttpURLConnection conn = null;
@@ -185,79 +183,17 @@ public final class AdjustAnalyzer {
 
             @Override
             protected void onPostExecute(String jsonString) {
-                //parse json string
-                myCommands = new Gson().fromJson(jsonString, Command[].class);
+                if(jsonString == null || jsonString.isEmpty()) {
+                    Log.e(TAG, "onPostExecute: Couldn't retrieve JSON string");
+                    return;
+                }
 
-//                = new Gson().fromJson(jsonString,
-//                        new TypeToken<List<Command>>() {
-//                        }.getType());
-
-                Log.d(TAG, "onPostExecute: num Of Commands: " + myCommands.length);
-                analyzerCallback.onPostGetCommands(myCommands);
+                analyzerCallback.onPostGetCommands(jsonString);
             }
         }.execute();
     }
 
     public interface AnalyzerCallback {
-        void onPostGetCommands(Command[] myCommands);
-    }
-
-    public static class Command {
-        @SerializedName("class")
-        @Expose
-        private String mClass;
-        @SerializedName("funcName")
-        @Expose
-        private String mFuncName;
-        @SerializedName("params")
-        @Expose
-        private List<Param> mParams;
-
-        public Command(String mClass, String mFuncName, List<Param> mParams) {
-            this.mClass = mClass;
-            this.mFuncName = mFuncName;
-            this.mParams = mParams;
-        }
-
-        public String getCallingClass() {
-            return mClass;
-        }
-
-        public String getFuncName() {
-            return mFuncName;
-        }
-
-        public List<Param> getParams() {
-            return mParams;
-        }
-
-        @Override
-        public String toString() {
-            return "class: " + mClass + "\n"
-                    + "funcName: " + mFuncName + "\n"
-                    + "Param size: " + mParams.size() + "\n";
-        }
-    }
-
-    public static class Param {
-        @SerializedName("name")
-        @Expose
-        private String mName;
-        @SerializedName("value")
-        @Expose
-        private String mValue;
-
-        public Param(String mName, String mValue) {
-            this.mName = mName;
-            this.mValue = mValue;
-        }
-
-        public String getValue() {
-            return mValue;
-        }
-
-        public String getName() {
-            return mName;
-        }
+        void onPostGetCommands(String commands);
     }
 }

@@ -25,8 +25,8 @@ public class StartActivity extends AppCompatActivity {
         AdjustAnalyzer.init("http://172.16.150.242:8080");
         AdjustAnalyzer.executeCommands(new AdjustAnalyzer.AnalyzerCallback() {
             @Override
-            public void onPostGetCommands(AdjustAnalyzer.Command[] myCommands) {
-                AnalyzerDictionary.executeCommand(myCommands);
+            public void onPostGetCommands(String commands) {
+                AnalyzerDictionary.executeCommand(commands);
             }
         });
 
