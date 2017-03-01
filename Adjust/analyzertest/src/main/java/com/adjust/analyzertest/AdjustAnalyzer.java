@@ -4,8 +4,6 @@ import android.os.*;
 import android.util.*;
 
 import com.adjust.sdk.*;
-import com.google.gson.*;
-import com.google.gson.annotations.*;
 
 import org.json.*;
 
@@ -26,9 +24,60 @@ public final class AdjustAnalyzer {
 
     }
 
-    public static void init(String baseUrl) {
+    public static void init(String baseUrl, final AnalyzerCallback_OnPostInit callback) {
         AdjustFactory.setBaseUrl(baseUrl);
-        AdjustAnalyzer.didInit = true;
+
+        //Send test scenario details
+        final String targetURL = AdjustFactory.getBaseUrl() + "/init";
+
+        final Map<String, String> map = new HashMap<>();
+        map.put("scenario_type", "basic_attribution");
+        final String json = new JSONObject(map).toString();
+
+        new AsyncTask<String, Void, String>() {
+            @Override
+            protected String doInBackground(String... params) {
+                URL url = null;
+                StringBuilder output = new StringBuilder();
+                try {
+                    url = new URL(targetURL);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setDoOutput(true);
+                    conn.setInstanceFollowRedirects(true);
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json");
+
+                    OutputStream os = conn.getOutputStream();
+                    os.write(json.getBytes());
+                    os.flush();
+
+                    Log.d("ADJUST", String.valueOf(conn.getResponseCode()));
+                    BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        output.append(line);
+                    }
+
+                    conn.disconnect();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                return output.toString();
+            }
+
+            @Override
+            protected void onPostExecute(String jsonString) {
+                if (jsonString == null || jsonString.isEmpty()) {
+                    Log.e(TAG, "onPostExecute: Couldn't retrieve JSON string");
+                    return;
+                }
+
+                AdjustAnalyzer.didInit = true;
+                callback.onPostInit(jsonString);
+            }
+        }.execute();
     }
 
     public static void reportState(String callsite) {
@@ -141,59 +190,55 @@ public final class AdjustAnalyzer {
         }.execute();
     }
 
-    public static void executeCommands(final AnalyzerCallback analyzerCallback) {
-        if (!didInit) {
-            AdjustFactory.getLogger().error("Init not called. Please call init before running Adjust.onCreate()");
-            return;
-        }
+//    public static void executeCommands(final AnalyzerCallback_OnPostGetCommands analyzerCallback) {
+//        if (!didInit) {
+//            AdjustFactory.getLogger().error("Init not called. Please call init before running Adjust.onCreate()");
+//            return;
+//        }
+//
+//        final String targetURL = AdjustFactory.getBaseUrl() + "/commands";
+//
+//        new AsyncTask<String, Void, String>() {
+//            HttpURLConnection conn = null;
+//
+//            @Override
+//            protected String doInBackground(String... params) {
+//                URL url = null;
+//                StringBuilder output = new StringBuilder();
+//                try {
+//                    url = new URL(targetURL);
+//                    conn = (HttpURLConnection) url.openConnection();
+//                    InputStream in = new BufferedInputStream(conn.getInputStream());
+//                    BufferedReader br = new BufferedReader(new InputStreamReader(in));
+//
+//                    String line;
+//                    while ((line = br.readLine()) != null) {
+//                        output.append(line);
+//                    }
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                } finally {
+//                    conn.disconnect();
+//                }
+//
+//                return output.toString();
+//            }
+//
+//            @Override
+//            protected void onPostExecute(String jsonString) {
+//                if (jsonString == null || jsonString.isEmpty()) {
+//                    Log.e(TAG, "onPostExecute: Couldn't retrieve JSON string");
+//                    return;
+//                }
+//
+//                analyzerCallback.onPostGetCommands(jsonString);
+//            }
+//        }.execute();
+//    }
 
-        final String targetURL = AdjustFactory.getBaseUrl() + "/commands";
-
-        new AsyncTask<String, Void, String>() {
-            HttpURLConnection conn = null;
-
-            @Override
-            protected String doInBackground(String... params) {
-                URL url = null;
-                StringBuilder output = new StringBuilder();
-                try {
-                    url = new URL(targetURL);
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.setDoOutput(true);
-                    conn.setInstanceFollowRedirects(true);
-                    conn.setRequestMethod("POST");
-                    conn.setRequestProperty("Content-Type", "application/json");
-
-                    BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-
-                    Log.d("ADJUST", "Output from Server .... \n");
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        output.append(line);
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    conn.disconnect();
-                }
-
-                return output.toString();
-            }
-
-            @Override
-            protected void onPostExecute(String jsonString) {
-                if(jsonString == null || jsonString.isEmpty()) {
-                    Log.e(TAG, "onPostExecute: Couldn't retrieve JSON string");
-                    return;
-                }
-
-                analyzerCallback.onPostGetCommands(jsonString);
-            }
-        }.execute();
+    public interface AnalyzerCallback_OnPostInit {
+        void onPostInit(String commands);
     }
 
-    public interface AnalyzerCallback {
-        void onPostGetCommands(String commands);
-    }
 }

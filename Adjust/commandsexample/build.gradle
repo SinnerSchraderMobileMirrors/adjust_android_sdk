@@ -26,7 +26,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.0.1'
     compile 'com.google.android.gms:play-services-analytics:10.0.1'
     // imported module
-//    compile project(':adjust')
+    //    compile project(':adjust')
     // running mvn package
     //compile fileTree(dir: '../target', include: ['*.jar'])
     // using maven repository
@@ -41,5 +41,6 @@ dependencies {
         exclude module: 'support-annotations'
     }
     compile project(':analyzertest')
+    compile files('libs/gson-2.8.0.jar')
 }
 

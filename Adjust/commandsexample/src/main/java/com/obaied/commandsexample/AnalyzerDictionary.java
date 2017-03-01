@@ -9,6 +9,8 @@ import com.adjust.sdk.*;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 
+import java.io.*;
+import java.net.*;
 import java.util.*;
 
 /**
@@ -19,10 +21,9 @@ public final class AnalyzerDictionary {
     private static final String TAG = "AnalyzerDictionary";
 
     public static void executeCommand(final String jsonString) {
-        new Handler().post(new Runnable() {
+        new AsyncTask<String, Void, Void>() {
             @Override
-            public void run() {
-
+            protected Void doInBackground(String... paramz) {
                 Command[] commands = new Gson().fromJson(jsonString, Command[].class);
                 for (Command command : commands) {
                     String callingClass = command.getCallingClass();
@@ -50,8 +51,9 @@ public final class AnalyzerDictionary {
                             break;
                     }
                 }
+                return null;
             }
-        });
+        }.execute();
     }
 
     private static class Dictionary_AdjustAnalyzer {

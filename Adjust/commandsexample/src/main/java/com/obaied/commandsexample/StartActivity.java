@@ -1,14 +1,9 @@
 package com.obaied.commandsexample;
 
-import android.app.*;
 import android.os.*;
 import android.support.v7.app.*;
-import android.util.*;
 
 import com.adjust.analyzertest.*;
-import com.adjust.sdk.*;
-
-import java.util.*;
 
 public class StartActivity extends AppCompatActivity {
     private static final String TAG = "StartActivity";
@@ -22,13 +17,13 @@ public class StartActivity extends AppCompatActivity {
 //        Uri data = intent.getData();
 //        Adjust.appWillOpenUrl(data);
 
-        AdjustAnalyzer.init("http://172.16.150.242:8080");
-        AdjustAnalyzer.executeCommands(new AdjustAnalyzer.AnalyzerCallback() {
-            @Override
-            public void onPostGetCommands(String commands) {
-                AnalyzerDictionary.executeCommand(commands);
-            }
-        });
+        AdjustAnalyzer.init("http://10.0.1.6:8080",
+                new AdjustAnalyzer.AnalyzerCallback_OnPostInit() {
+                    @Override
+                    public void onPostInit(String commands) {
+                        AnalyzerDictionary.executeCommand(commands);
+                    }
+                });
 
 //        new Handler().post(new Runnable() {
 //            @Override
