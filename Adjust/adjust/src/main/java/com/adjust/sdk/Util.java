@@ -42,6 +42,7 @@ import java.security.MessageDigest;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
@@ -207,17 +208,22 @@ public class Util {
         }
     }
 
-    public static ResponseData readHttpResponse(HttpsURLConnection connection, ActivityPackage activityPackage) throws Exception {
+    public static class HttpResponse {
+        public String response = null;
+        public Integer responseCode = null;
+        public Map<String, List<String>> headerFields = null;
+    }
+
+    public static HttpResponse readHttpResponse(HttpsURLConnection connection) throws Exception {
         StringBuffer sb = new StringBuffer();
-        ILogger logger = getLogger();
-        Integer responseCode = null;
+        HttpResponse httpResponse = new HttpResponse();
         try {
             connection.connect();
 
-            responseCode = connection.getResponseCode();
+            httpResponse.responseCode = connection.getResponseCode();
             InputStream inputStream;
 
-            if (responseCode >= 400) {
+            if (httpResponse.responseCode >= 400) {
                 inputStream = connection.getErrorStream();
             } else {
                 inputStream = connection.getInputStream();
@@ -230,19 +236,33 @@ public class Util {
             while ((line = bufferedReader.readLine()) != null) {
                 sb.append(line);
             }
-        } catch (Exception e) {
-            logger.error("Failed to read response. (%s)", e.getMessage());
-            throw e;
         } finally {
             if (connection != null) {
                 connection.disconnect();
             }
         }
 
-        ResponseData responseData = ResponseData.buildResponseData(activityPackage);
+        httpResponse.response = sb.toString();
+        return httpResponse;
+    }
 
-        String stringResponse = sb.toString();
+    public static ResponseData readHttpResponse(HttpsURLConnection connection, ActivityPackage activityPackage) throws Exception {
+        ILogger logger = getLogger();
+
+        HttpResponse httpResponse;
+        try {
+            httpResponse = readHttpResponse(connection);
+        }
+        catch (Exception e) {
+            logger.error("Failed to read response. (%s)", e.getMessage());
+            throw e;
+        }
+        String stringResponse = httpResponse.response;
+        Integer responseCode = httpResponse.responseCode;
+
         logger.verbose("Response: %s", stringResponse);
+
+        ResponseData responseData = ResponseData.buildResponseData(activityPackage);
 
         if (stringResponse == null || stringResponse.length() == 0) {
             return responseData;
@@ -284,16 +304,18 @@ public class Util {
         return responseData;
     }
 
-    public static AdjustFactory.URLGetConnection createGETHttpsURLConnection(String urlString, String clientSdk)
+    public static AdjustFactory.URLGetConnection createGETHttpsURLConnection(String urlString,
+                                                                             IConnectionOptions connectionOptions)
             throws IOException
     {
         HttpsURLConnection connection = null;
         try {
+            getLogger().verbose("GET request: %s", urlString);
             URL url = new URL(urlString);
             AdjustFactory.URLGetConnection urlGetConnection = AdjustFactory.getHttpsURLGetConnection(url);
 
             connection = urlGetConnection.httpsURLConnection;
-            setDefaultHttpsUrlConnectionProperties(connection, clientSdk);
+            connectionOptions.applyConnectionOptions(connection);
 
             connection.setRequestMethod("GET");
 
@@ -303,26 +325,39 @@ public class Util {
         }
     }
 
-    public static HttpsURLConnection createPOSTHttpsURLConnection(String urlString, String clientSdk,
-                                                                  Map<String, String> parameters,
-                                                                  int queueSize)
+
+    public static AdjustFactory.URLGetConnection createGETHttpsURLConnection(String urlString, String clientSdk)
+            throws IOException
+    {
+        ConnectionOptions connectionOptions = new ConnectionOptions(clientSdk);
+
+        return createGETHttpsURLConnection(urlString, connectionOptions);
+
+    }
+
+    public static HttpsURLConnection createPOSTHttpsURLConnection(String urlString,
+                                                                  String postData,
+                                                                  IConnectionOptions connectionOptions)
             throws IOException
     {
         DataOutputStream wr = null;
         HttpsURLConnection connection = null;
         try {
+            getLogger().verbose("POST request: %s", urlString);
             URL url = new URL(urlString);
             connection = AdjustFactory.getHttpsURLConnection(url);
 
-            setDefaultHttpsUrlConnectionProperties(connection, clientSdk);
+            connectionOptions.applyConnectionOptions(connection);
             connection.setRequestMethod("POST");
 
             connection.setUseCaches(false);
             connection.setDoInput(true);
             connection.setDoOutput(true);
 
-            wr = new DataOutputStream(connection.getOutputStream());
-            wr.writeBytes(getPostDataString(parameters, queueSize));
+            if (postData != null && postData.length() > 0) {
+                wr = new DataOutputStream(connection.getOutputStream());
+                wr.writeBytes(postData);
+            }
 
             return connection;
         } catch (IOException e) {
@@ -337,46 +372,74 @@ public class Util {
         }
     }
 
-    private static String getPostDataString(Map<String, String> body, int queueSize) throws UnsupportedEncodingException {
-        StringBuilder result = new StringBuilder();
+    public static HttpsURLConnection createPOSTHttpsURLConnection(String urlString, String clientSdk,
+                                                                  Map<String, String> parameters,
+                                                                  int queueSize)
+            throws IOException
+    {
+        ConnectionOptions connectionOptions = new ConnectionOptions(clientSdk);
+        String postData = getPostDataString(parameters, queueSize);
+
+        return createPOSTHttpsURLConnection(urlString, postData, connectionOptions);
+    }
+
+    public static StringBuilder postDataStringBuilder(Map<String, String> body) throws UnsupportedEncodingException {
+        StringBuilder postDataStringBuilder = new StringBuilder();
 
         for(Map.Entry<String, String> entry : body.entrySet()) {
             String encodedName = URLEncoder.encode(entry.getKey(), Constants.ENCODING);
             String value = entry.getValue();
             String encodedValue = value != null ? URLEncoder.encode(value, Constants.ENCODING) : "";
-            if (result.length() > 0) {
-                result.append("&");
+            if (postDataStringBuilder.length() > 0) {
+                postDataStringBuilder.append("&");
             }
 
-            result.append(encodedName);
-            result.append("=");
-            result.append(encodedValue);
+            postDataStringBuilder.append(encodedName);
+            postDataStringBuilder.append("=");
+            postDataStringBuilder.append(encodedValue);
         }
+
+        return postDataStringBuilder;
+    }
+
+    private static String getPostDataString(Map<String, String> body, int queueSize) throws UnsupportedEncodingException {
+        StringBuilder postDataStringBuilder = postDataStringBuilder(body);
 
         long now = System.currentTimeMillis();
         String dateString = Util.dateFormatter.format(now);
 
-        result.append("&");
-        result.append(URLEncoder.encode("sent_at", Constants.ENCODING));
-        result.append("=");
-        result.append(URLEncoder.encode(dateString, Constants.ENCODING));
+        postDataStringBuilder.append("&");
+        postDataStringBuilder.append(URLEncoder.encode("sent_at", Constants.ENCODING));
+        postDataStringBuilder.append("=");
+        postDataStringBuilder.append(URLEncoder.encode(dateString, Constants.ENCODING));
 
         if (queueSize > 0) {
-            result.append("&");
-            result.append(URLEncoder.encode("queue_size", Constants.ENCODING));
-            result.append("=");
-            result.append(URLEncoder.encode("" + queueSize, Constants.ENCODING));
+            postDataStringBuilder.append("&");
+            postDataStringBuilder.append(URLEncoder.encode("queue_size", Constants.ENCODING));
+            postDataStringBuilder.append("=");
+            postDataStringBuilder.append(URLEncoder.encode("" + queueSize, Constants.ENCODING));
         }
 
-        return result.toString();
+        return postDataStringBuilder.toString();
     }
 
-    public static void setDefaultHttpsUrlConnectionProperties(HttpsURLConnection connection, String clientSdk) {
-        connection.setRequestProperty("Client-SDK", clientSdk);
-        connection.setConnectTimeout(Constants.ONE_MINUTE);
-        connection.setReadTimeout(Constants.ONE_MINUTE);
-        if (userAgent != null) {
-            connection.setRequestProperty("User-Agent", userAgent);
+    public interface IConnectionOptions {
+        void applyConnectionOptions(HttpsURLConnection connection);
+    }
+
+    private static class ConnectionOptions implements IConnectionOptions {
+        String clientSdk;
+        public ConnectionOptions(String clientSdk) {
+            this.clientSdk = clientSdk;
+        }
+        @Override
+        public void applyConnectionOptions(HttpsURLConnection connection) {
+            connection.setRequestProperty("Client-SDK", clientSdk);
+            connection.setConnectTimeout(Constants.ONE_MINUTE);
+            connection.setReadTimeout(Constants.ONE_MINUTE);
+            if (userAgent != null) {
+                connection.setRequestProperty("User-Agent", userAgent);
+            }
         }
     }
 
