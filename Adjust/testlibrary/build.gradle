@@ -26,6 +26,12 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+
+    // adjust sdk dependency
+    compile project(":adjust")
+
+    compile 'com.google.code.gson:gson:2.8.0'
+
     compile 'com.android.support:appcompat-v7:25.2.0'
     testCompile 'junit:junit:4.12'
 }
