@@ -1,11 +1,14 @@
 package com.example.testapp;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.testlibrary.ICommandListener;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -25,9 +28,18 @@ public class CommandListener implements ICommandListener {
     public void executeCommand(String className, String methodName, Map<String, List<String>> parameters) {
         ICommandExecutor commandExecutor = this.classMap.get(className);
         if (commandExecutor == null) {
-            // XXX
+            debug("Could not find %s class to execute", className);
             return;
         }
         commandExecutor.executeCommand(new Command(className, methodName, parameters));
+    }
+
+    static void debug(String message, Object... parameters) {
+        try {
+            Log.d("TestApp", String.format(Locale.US, message, parameters));
+        } catch (Exception e) {
+            Log.e("TestApp", String.format(Locale.US, "Error formating log message: %s, with params: %s"
+                    , message, Arrays.toString(parameters)));
+        }
     }
 }

@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         commandListener = new CommandListener(this.getApplicationContext());
-        testLibrary = new TestLibrary("https", "10.0.2.2:8443", commandListener);
+        testLibrary = new TestLibrary("https://10.0.2.2:8443", commandListener);
         startTestSession();
     }
 

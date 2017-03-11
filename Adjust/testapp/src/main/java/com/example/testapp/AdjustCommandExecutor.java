@@ -4,6 +4,10 @@ import android.content.Context;
 
 import com.adjust.sdk.Adjust;
 import com.adjust.sdk.AdjustConfig;
+import com.adjust.sdk.AdjustFactory;
+import com.adjust.sdk.LogLevel;
+
+import java.util.Map;
 
 /**
  * Created by nonelse on 10.03.17.
@@ -11,7 +15,6 @@ import com.adjust.sdk.AdjustConfig;
 
 public class AdjustCommandExecutor extends ICommandExecutor {
     Context context;
-    private static final String ON_CREATE = "onCreate";
 
     public AdjustCommandExecutor(Context context) {
         this.context = context;
@@ -21,8 +24,9 @@ public class AdjustCommandExecutor extends ICommandExecutor {
     public void executeCommand(Command command) {
         super.executeCommand(command);
 
-        if (command.methodName.equals(ON_CREATE)) {
-            onCreate();
+        switch (command.methodName) {
+            case "onCreate": onCreate(); break;
+            case "teardown": teardown(); break;
         }
     }
 
@@ -31,8 +35,18 @@ public class AdjustCommandExecutor extends ICommandExecutor {
         String appToken = command.getFirstParameterValue("appToken");
 
         AdjustConfig config = new AdjustConfig(this.context, appToken, environment);
+
+        config.setLogLevel(LogLevel.VERBOSE);
+
         Adjust.onCreate(config);
 
         Adjust.onResume();
+    }
+
+    private void teardown() {
+        String deleteStateString = command.getFirstParameterValue("deleteState");
+        boolean deleteState = Boolean.parseBoolean(deleteStateString);
+
+        AdjustFactory.teardown(deleteState);
     }
 }
