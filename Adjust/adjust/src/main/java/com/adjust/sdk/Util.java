@@ -50,7 +50,12 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import static com.adjust.sdk.Constants.ENCODING;
 import static com.adjust.sdk.Constants.MD5;
@@ -441,6 +446,39 @@ public class Util {
             if (userAgent != null) {
                 connection.setRequestProperty("User-Agent", userAgent);
             }
+            // XXX disable ssl checks for tests, temporary!
+            try {
+                SSLContext sc = SSLContext.getInstance("TLS");
+                sc.init(null, new TrustManager[]{
+                        new X509TrustManager() {
+                            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                                //getLogger().verbose("getAcceptedIssuers");
+
+                                return null;
+                            }
+                            public void checkClientTrusted(
+                                    java.security.cert.X509Certificate[] certs, String authType) {
+                                //getLogger().verbose("checkClientTrusted %s", certs);
+                            }
+                            public void checkServerTrusted(
+                                    java.security.cert.X509Certificate[] certs, String authType) {
+                                //getLogger().verbose("checkServerTrusted %s", certs);
+                            }
+                        }
+                }, new java.security.SecureRandom());
+                connection.setSSLSocketFactory(sc.getSocketFactory());
+
+                connection.setHostnameVerifier(new HostnameVerifier() {
+                    @Override
+                    public boolean verify(String hostname, SSLSession session) {
+                        //getLogger().verbose("verify hostname %s", hostname);
+                        return true;
+                    }
+                });
+            } catch (Exception e) {
+                getLogger().error("applyConnectionOptions %s", e.getMessage());
+            }
+
         }
     }
 
