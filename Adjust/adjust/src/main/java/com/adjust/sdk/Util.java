@@ -384,43 +384,44 @@ public class Util {
     }
 
     public static StringBuilder postDataStringBuilder(Map<String, String> body) throws UnsupportedEncodingException {
-        StringBuilder postDataStringBuilder = new StringBuilder();
+        StringBuilder postDataBuilder = new StringBuilder();
 
         for(Map.Entry<String, String> entry : body.entrySet()) {
-            String encodedName = URLEncoder.encode(entry.getKey(), Constants.ENCODING);
-            String value = entry.getValue();
-            String encodedValue = value != null ? URLEncoder.encode(value, Constants.ENCODING) : "";
-            if (postDataStringBuilder.length() > 0) {
-                postDataStringBuilder.append("&");
-            }
-
-            postDataStringBuilder.append(encodedName);
-            postDataStringBuilder.append("=");
-            postDataStringBuilder.append(encodedValue);
+            encodePostData(postDataBuilder, entry.getKey(), entry.getValue());
         }
 
-        return postDataStringBuilder;
+        return postDataBuilder;
     }
 
-    private static String getPostDataString(Map<String, String> body, int queueSize) throws UnsupportedEncodingException {
-        StringBuilder postDataStringBuilder = postDataStringBuilder(body);
+    private static String getPostDataString(Map<String, String> body, int queueSize)
+            throws UnsupportedEncodingException
+    {
+        StringBuilder postDataBuilder = postDataStringBuilder(body);
 
         long now = System.currentTimeMillis();
         String dateString = Util.dateFormatter.format(now);
 
-        postDataStringBuilder.append("&");
-        postDataStringBuilder.append(URLEncoder.encode("sent_at", Constants.ENCODING));
-        postDataStringBuilder.append("=");
-        postDataStringBuilder.append(URLEncoder.encode(dateString, Constants.ENCODING));
+        encodePostData(postDataBuilder, "sent_at", dateString);
 
         if (queueSize > 0) {
-            postDataStringBuilder.append("&");
-            postDataStringBuilder.append(URLEncoder.encode("queue_size", Constants.ENCODING));
-            postDataStringBuilder.append("=");
-            postDataStringBuilder.append(URLEncoder.encode("" + queueSize, Constants.ENCODING));
+            encodePostData(postDataBuilder, "queue_size", "" + queueSize);
         }
 
-        return postDataStringBuilder.toString();
+        return postDataBuilder.toString();
+    }
+
+    private static void encodePostData(StringBuilder postDataBuilder, String key, String value)
+            throws UnsupportedEncodingException
+    {
+        String encodedName = URLEncoder.encode(key, Constants.ENCODING);
+        String encodedValue = value != null ? URLEncoder.encode(value, Constants.ENCODING) : "";
+        if (postDataBuilder.length() > 0) {
+            postDataBuilder.append("&");
+        }
+
+        postDataBuilder.append(encodedName);
+        postDataBuilder.append("=");
+        postDataBuilder.append(encodedValue);
     }
 
     public interface IConnectionOptions {
