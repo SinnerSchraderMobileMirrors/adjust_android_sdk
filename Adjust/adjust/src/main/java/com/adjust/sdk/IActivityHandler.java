@@ -53,4 +53,8 @@ public interface IActivityHandler {
     void teardown(boolean deleteState);
 
     void setPushToken(String token);
+
+    String getAdid();
+
+    AdjustAttribution getAttribution();
 }

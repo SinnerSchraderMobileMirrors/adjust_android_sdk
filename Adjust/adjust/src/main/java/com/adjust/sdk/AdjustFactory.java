@@ -157,7 +157,21 @@ public class AdjustFactory {
         return AdjustFactory.baseUrl;
     }
 
+    // Teardown
 
+    public static void teardown(boolean deleteState) {
+        if (Adjust.defaultInstance != null) {
+            Adjust.defaultInstance.teardown(deleteState);
+        }
+        Adjust.defaultInstance = null;
+        packageHandler = null;
+        requestHandler = null;
+        attributionHandler = null;
+        activityHandler = null;
+        logger = null;
+        httpsURLConnection = null;
+        sdkClickHandler = null;
+    }
 
     // Setters
 
