@@ -67,22 +67,22 @@ public class TestLibrary {
         debug("base url: %s", AdjustFactory.getBaseUrl());
     }
 
-    public void initTestSession() {
+    public void initTestSession(final String clientSdk) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                sendTestSessionI();
+                sendTestSessionI(clientSdk);
             }
         });
     }
 
-    private void sendTestSessionI() {
+    private void sendTestSessionI(String clientSdk) {
         this.testSessionId = null;
         debug("testSessionId : %s", testSessionId);
         // change path
         registerEndPoint();
 
-        Util.HttpResponse httpResponse = sendPostI("/init_session");
+        Util.HttpResponse httpResponse = sendPostI("/init_session", clientSdk);
         if (httpResponse == null) {
             return;
         }

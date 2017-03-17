@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startTestSession() {
-        testLibrary.initTestSession();
+        testLibrary.initTestSession("unity4.10.0@android4.11.1");
     }
 
     public void onStartTestSession(View v) {

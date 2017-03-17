@@ -28,7 +28,7 @@ import static com.example.testlibrary.Constants.LOGTAG;
  */
 
 public class Utils {
-    static Util.IConnectionOptions connectionOptions;
+    static ConnectionOptions connectionOptions;
     static TrustManager[] trustAllCerts;
     static HostnameVerifier hostnameVerifier;
 
@@ -59,32 +59,44 @@ public class Utils {
                 return true;
             }
         };
-        connectionOptions = new Util.IConnectionOptions() {
-            @Override
-            public void applyConnectionOptions(HttpsURLConnection connection) {
-                connection.setConnectTimeout(com.adjust.sdk.Constants.ONE_MINUTE);
-                connection.setReadTimeout(com.adjust.sdk.Constants.ONE_MINUTE);
-                try {
-                    SSLContext sc = SSLContext.getInstance("TLS");
-                    sc.init(null, trustAllCerts, new java.security.SecureRandom());
-                    connection.setSSLSocketFactory(sc.getSocketFactory());
-
-                    connection.setHostnameVerifier(hostnameVerifier);
-                    debug("applyConnectionOptions");
-                } catch (Exception e) {
-                    debug("applyConnectionOptions %s", e.getMessage());
-                }
-            }
-        };
+        connectionOptions = new ConnectionOptions();
         gson = new Gson();
         stringStringMap = new TypeToken<Map<String, String>>(){}.getType();
     }
 
+    static class ConnectionOptions implements Util.IConnectionOptions {
+        public String clientSdk;
+
+        @Override
+        public void applyConnectionOptions(HttpsURLConnection connection) {
+            if (this.clientSdk != null) {
+                connection.setRequestProperty("Client-SDK", clientSdk);
+            }
+            connection.setConnectTimeout(com.adjust.sdk.Constants.ONE_MINUTE);
+            connection.setReadTimeout(com.adjust.sdk.Constants.ONE_MINUTE);
+            try {
+                SSLContext sc = SSLContext.getInstance("TLS");
+                sc.init(null, trustAllCerts, new java.security.SecureRandom());
+                connection.setSSLSocketFactory(sc.getSocketFactory());
+
+                connection.setHostnameVerifier(hostnameVerifier);
+                debug("applyConnectionOptions");
+            } catch (Exception e) {
+                debug("applyConnectionOptions %s", e.getMessage());
+            }
+        }
+    }
     static Util.HttpResponse sendPostI(String path) {
+        return sendPostI(path, null);
+    }
+    static Util.HttpResponse sendPostI(String path, String clientSdk) {
         String targetURL = AdjustFactory.getBaseUrl() + path;
         debug("targetURL: %s", targetURL);
 
         try {
+            if (clientSdk != null) {
+                connectionOptions.clientSdk = clientSdk;
+            }
             HttpsURLConnection connection = Util.createPOSTHttpsURLConnection(
                     targetURL, null, connectionOptions);
             Util.HttpResponse httpResponse = Util.readHttpResponse(connection);
