@@ -7,8 +7,6 @@ import com.adjust.sdk.AdjustConfig;
 import com.adjust.sdk.AdjustFactory;
 import com.adjust.sdk.LogLevel;
 
-import java.util.Map;
-
 /**
  * Created by nonelse on 10.03.17.
  */

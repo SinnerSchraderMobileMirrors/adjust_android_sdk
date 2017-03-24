@@ -1,4 +1,4 @@
-package com.example.testlibrary;
+package com.adjust.testlibrary;
 
 import com.adjust.sdk.AdjustFactory;
 import com.adjust.sdk.Util;
@@ -10,12 +10,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static com.example.testlibrary.Constants.BASE_PATH_HEADER;
-import static com.example.testlibrary.Constants.TEST_SCRIPT_HEADER;
-import static com.example.testlibrary.Constants.TEST_SESSION_END_HEADER;
-import static com.example.testlibrary.Utils.debug;
-import static com.example.testlibrary.Utils.gson;
-import static com.example.testlibrary.Utils.sendPostI;
+import static com.adjust.testlibrary.Constants.BASE_PATH_HEADER;
+import static com.adjust.testlibrary.Constants.TEST_SCRIPT_HEADER;
+import static com.adjust.testlibrary.Constants.TEST_SESSION_END_HEADER;
+import static com.adjust.testlibrary.Utils.debug;
+import static com.adjust.testlibrary.Utils.gson;
+import static com.adjust.testlibrary.Utils.sendPostI;
+
 
 /**
  * Created by nonelse on 09.03.17.
@@ -31,7 +32,7 @@ public class TestLibrary {
     ControlChannel controlChannel = new ControlChannel(this);
     String currentTest;
     Future<?> lastFuture;
-    String currentBasePath;
+    public String currentBasePath;
 
     public TestLibrary(String baseUrl, ICommandJsonListener commandJsonListener) {
         this(baseUrl);
@@ -118,12 +119,12 @@ public class TestLibrary {
             commandJsonListener.setBasePath(currentBasePath);
         }
 
-        for (TestCommand testCommand: testCommands) {
+        for (TestCommand testCommand : testCommands) {
             debug("ClassName: %s", testCommand.className);
             debug("FunctionName: %s", testCommand.functionName);
             debug("Params:");
             if (testCommand.params != null && testCommand.params.size() > 0) {
-                for(Map.Entry<String, List<String>> entry : testCommand.params.entrySet()) {
+                for (Map.Entry<String, List<String>> entry : testCommand.params.entrySet()) {
                     debug("\t%s: %s", entry.getKey(), entry.getValue());
                 }
             }

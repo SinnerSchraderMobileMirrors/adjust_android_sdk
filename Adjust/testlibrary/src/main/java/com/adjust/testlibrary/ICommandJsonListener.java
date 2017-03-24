@@ -1,4 +1,4 @@
-package com.example.testlibrary;
+package com.adjust.testlibrary;
 
 /**
  * Created by nonelse on 10.03.17.

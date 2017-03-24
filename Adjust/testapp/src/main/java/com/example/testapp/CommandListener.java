@@ -3,7 +3,7 @@ package com.example.testapp;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.testlibrary.ICommandListener;
+import com.adjust.testlibrary.ICommandListener;
 
 import java.util.Arrays;
 import java.util.HashMap;

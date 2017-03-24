@@ -1,4 +1,4 @@
-package com.example.testlibrary;
+package com.adjust.testlibrary;
 
 import android.util.Log;
 
@@ -21,7 +21,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import static com.example.testlibrary.Constants.LOGTAG;
+import static com.adjust.testlibrary.Constants.LOGTAG;
 
 /**
  * Created by nonelse on 11.03.17.
@@ -86,10 +86,10 @@ public class Utils {
             }
         }
     }
-    static Util.HttpResponse sendPostI(String path) {
+    public static Util.HttpResponse sendPostI(String path) {
         return sendPostI(path, null);
     }
-    static Util.HttpResponse sendPostI(String path, String clientSdk) {
+    public static Util.HttpResponse sendPostI(String path, String clientSdk) {
         String targetURL = AdjustFactory.getBaseUrl() + path;
         debug("targetURL: %s", targetURL);
 
@@ -114,7 +114,7 @@ public class Utils {
         return null;
     }
 
-    static void debug(String message, Object... parameters) {
+    public static void debug(String message, Object... parameters) {
         try {
             Log.d(LOGTAG, String.format(Locale.US, message, parameters));
         } catch (Exception e) {
@@ -123,7 +123,7 @@ public class Utils {
         }
     }
 
-    static String appendBasePath(String basePath, String path) {
+    public static String appendBasePath(String basePath, String path) {
         if (basePath == null) {
             return path;
         }

@@ -1,4 +1,4 @@
-package com.example.testlibrary;
+package com.adjust.testlibrary;
 
 import android.os.SystemClock;
 
@@ -8,9 +8,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static com.example.testlibrary.Constants.TEST_CANCEL;
-import static com.example.testlibrary.Utils.debug;
-import static com.example.testlibrary.Utils.sendPostI;
+import static com.adjust.testlibrary.Constants.TEST_CANCEL;
+import static com.adjust.testlibrary.Utils.debug;
+import static com.adjust.testlibrary.Utils.sendPostI;
 
 /**
  * Created by nonelse on 21.03.17.

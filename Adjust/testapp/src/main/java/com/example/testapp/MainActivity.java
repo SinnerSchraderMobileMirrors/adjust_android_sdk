@@ -4,7 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.example.testlibrary.TestLibrary;
+import com.adjust.testlibrary.TestLibrary;
 
 public class MainActivity extends AppCompatActivity {
     private TestLibrary testLibrary;
