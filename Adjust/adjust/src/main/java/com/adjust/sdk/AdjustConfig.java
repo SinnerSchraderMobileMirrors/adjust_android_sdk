@@ -32,6 +32,7 @@ public class AdjustConfig {
     ILogger logger;
     String userAgent;
     String pushToken;
+    String basePath;
 
     public static final String ENVIRONMENT_SANDBOX = "sandbox";
     public static final String ENVIRONMENT_PRODUCTION = "production";
@@ -127,6 +128,10 @@ public class AdjustConfig {
 
     public void setUserAgent(String userAgent) {
         this.userAgent = userAgent;
+    }
+
+    public void setBasePath(String basePath) {
+        this.basePath = basePath;
     }
 
     public boolean isValid() {

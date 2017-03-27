@@ -17,10 +17,12 @@ import java.util.Map;
 
 public class CommandListener implements ICommandListener {
     Map<String, ICommandExecutor> classMap;
+    AdjustCommandExecutor adjustCommandExecutor;
 
     public CommandListener(Context context) {
+        adjustCommandExecutor = new AdjustCommandExecutor(context);
         classMap = new HashMap<String, ICommandExecutor>();
-        classMap.put ("Adjust", new AdjustCommandExecutor(context));
+        classMap.put ("Adjust", adjustCommandExecutor);
         classMap.put ("System", new SystemCommandExecutor());
     }
 
@@ -32,6 +34,11 @@ public class CommandListener implements ICommandListener {
             return;
         }
         commandExecutor.executeCommand(new Command(className, methodName, parameters));
+    }
+
+    @Override
+    public void setBasePath(String basePath) {
+        adjustCommandExecutor.setBasePath(basePath);
     }
 
     static void debug(String message, Object... parameters) {

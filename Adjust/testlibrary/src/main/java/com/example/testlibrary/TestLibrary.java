@@ -1,31 +1,21 @@
 package com.example.testlibrary;
 
-import android.util.Base64;
-import android.util.Log;
-
 import com.adjust.sdk.AdjustFactory;
 import com.adjust.sdk.Util;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.net.CookieManager;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.HttpsURLConnection;
-
-import static com.example.testlibrary.Constants.COOKIES_HEADER;
-import static com.example.testlibrary.Constants.COOKIE_NAME;
-import static com.example.testlibrary.Constants.LOGTAG;
+import static com.example.testlibrary.Constants.BASE_PATH_HEADER;
+import static com.example.testlibrary.Constants.TEST_SCRIPT_HEADER;
+import static com.example.testlibrary.Constants.TEST_SESSION_END_HEADER;
 import static com.example.testlibrary.Utils.debug;
 import static com.example.testlibrary.Utils.gson;
 import static com.example.testlibrary.Utils.sendPostI;
-import static com.example.testlibrary.Utils.stringStringMap;
 
 /**
  * Created by nonelse on 09.03.17.
@@ -38,9 +28,7 @@ public class TestLibrary {
     ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
     ICommandListener commandListener;
     ICommandJsonListener commandJsonListener;
-    CookieManager cookieManager = new CookieManager();
-    String testSessionId;
-    TestLibraryCommandExecutor testLibraryCommandExecutor = new TestLibraryCommandExecutor(this);
+    String currentBasePath;
 
     public TestLibrary(String baseUrl, ICommandJsonListener commandJsonListener) {
         this(baseUrl);
@@ -55,14 +43,6 @@ public class TestLibrary {
     private TestLibrary(String baseUrl) {
         this.baseUrl = baseUrl;
 
-        registerEndPoint();
-    }
-
-    public void registerEndPoint() {
-        String baseUrl = this.baseUrl;
-        if (this.testSessionId != null && this.testSessionId.length() > 0) {
-            baseUrl = baseUrl + "/" + this.testSessionId;
-        }
         AdjustFactory.setBaseUrl(baseUrl);
         debug("base url: %s", AdjustFactory.getBaseUrl());
     }
@@ -76,65 +56,53 @@ public class TestLibrary {
         });
     }
 
-    private void sendTestSessionI(String clientSdk) {
-        this.testSessionId = null;
-        debug("testSessionId : %s", testSessionId);
-        // change path
-        registerEndPoint();
+    public void readHeaders(final Util.HttpResponse httpResponse) {
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                readHeadersI(httpResponse);
+            }
+        });
+    }
 
+
+    private void sendTestSessionI(String clientSdk) {
         Util.HttpResponse httpResponse = sendPostI("/init_session", clientSdk);
         if (httpResponse == null) {
             return;
         }
 
-        List<String> cookiesHeader = httpResponse.headerFields.get(COOKIES_HEADER);
-        debug("Cookies: %s", cookiesHeader);
-
-        for (String cookie : cookiesHeader) {
-            //debug("Cookie: %s", cookie);
-            parseExpressCookie(cookie);
-        }
-
-        List<TestCommand> testCommands = Arrays.asList(gson.fromJson(httpResponse.response, TestCommand[].class));
-        execTestCommands(testCommands);
+        readHeadersI(httpResponse);
     }
 
-    private void parseExpressCookie(String expressCookie) {
-        List<String> options = Arrays.asList(expressCookie.split("[; ]."));
-        for (String option : options){
-            //debug("Cookie option: %s", option);
-            List<String> keyAndValue= Arrays.asList(option.split("="));
-            //debug("Cookie keyAndValue: %s", keyAndValue);
-            if (keyAndValue == null || keyAndValue.size() == 0) {
-                continue;
-            }
-            String key = keyAndValue.get(0);
-            //debug("Cookie key: %s", key);
-            if (COOKIE_NAME.equals(key)) {
-                try {
-                    String value = keyAndValue.get(1);
-                    //debug("Cookie session: %s", value);
+    public void readHeadersI(Util.HttpResponse httpResponse) {
+        if (httpResponse.headerFields.containsKey(TEST_SESSION_END_HEADER)) {
+            debug("TestSessionEnd received");
+            return;
+        }
 
-                    byte[] data = Base64.decode(value, Base64.DEFAULT);
-                    String text = new String(data, "UTF-8");
-                    debug("Cookie session decoded: %s", text);
+        if (httpResponse.headerFields.containsKey(BASE_PATH_HEADER)) {
+            currentBasePath = httpResponse.headerFields.get(BASE_PATH_HEADER).get(0);
+        }
 
-                    Map<String, String> json = gson.fromJson(text, stringStringMap);
-                    debug("json : %s", json);
+        if (httpResponse.headerFields.containsKey(TEST_SCRIPT_HEADER)) {
+            currentTest = httpResponse.headerFields.get(TEST_SCRIPT_HEADER).get(0);
 
-                    this.testSessionId = json.get("testSessionId");
-                    debug("testSessionId : %s", testSessionId);
-                    // change path
-                    registerEndPoint();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            List<TestCommand> testCommands = Arrays.asList(gson.fromJson(httpResponse.response, TestCommand[].class));
+            execTestCommandsI(testCommands);
+            return;
         }
     }
 
-    void execTestCommands(List<TestCommand> testCommands) {
+    private void execTestCommandsI(List<TestCommand> testCommands) {
         debug("testCommands: %s", testCommands);
+
+        // set the base path for the start of the test
+        if (commandListener != null) {
+            commandListener.setBasePath(currentBasePath);
+        } else {
+            commandJsonListener.setBasePath(currentBasePath);
+        }
 
         for (TestCommand testCommand: testCommands) {
             debug("ClassName: %s", testCommand.className);
@@ -145,8 +113,16 @@ public class TestLibrary {
                     debug("\t%s: %s", entry.getKey(), entry.getValue());
                 }
             }
+            long timeBefore = System.nanoTime();
+            debug("time before %s %s: %d", testCommand.className, testCommand.functionName, timeBefore);
+
             if (TEST_LIBRARY.equals(testCommand.className)) {
-                testLibraryCommandExecutor.executeCommand(testCommand);
+                executeTestLibraryCommandI(testCommand);
+                long timeAfter = System.nanoTime();
+                long timeElapsedMillis = TimeUnit.NANOSECONDS.toMillis(timeAfter - timeBefore);
+                debug("time after %s %s: %d", testCommand.className, testCommand.functionName, timeAfter);
+                debug("time elapsed %s %s in milli seconds: %d", testCommand.className, testCommand.functionName, timeElapsedMillis);
+
                 continue;
             }
             if (commandListener != null) {
@@ -154,6 +130,26 @@ public class TestLibrary {
             } else {
                 commandJsonListener.executeCommand(testCommand.className, testCommand.functionName, gson.toJson(testCommand.params));
             }
+            long timeAfter = System.nanoTime();
+            long timeElapsedMillis = TimeUnit.NANOSECONDS.toMillis(timeAfter - timeBefore);
+            debug("time after %s.%s: %d", testCommand.className, testCommand.functionName, timeAfter);
+            debug("time elapsed %s.%s in milli seconds: %d", testCommand.className, testCommand.functionName, timeElapsedMillis);
         }
+    }
+
+    private void executeTestLibraryCommandI(TestCommand testCommand) {
+        switch (testCommand.functionName) {
+            case "end_test": endTestI(); break;
+        }
+    }
+
+    private void endTestI() {
+        Util.HttpResponse httpResponse = sendPostI(Utils.appendBasePath(currentBasePath, "/end_test"));
+        this.currentTest = null;
+        if (httpResponse == null) {
+            return;
+        }
+
+        readHeadersI(httpResponse);
     }
 }

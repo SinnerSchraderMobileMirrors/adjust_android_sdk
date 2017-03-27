@@ -15,6 +15,7 @@ import java.util.Map;
 
 public class AdjustCommandExecutor extends ICommandExecutor {
     Context context;
+    String basePath;
 
     public AdjustCommandExecutor(Context context) {
         this.context = context;
@@ -30,11 +31,16 @@ public class AdjustCommandExecutor extends ICommandExecutor {
         }
     }
 
+    public void setBasePath(String basePath) {
+        this.basePath = basePath;
+    }
+
     private void onCreate() {
         String environment = command.getFirstParameterValue("environment");
         String appToken = command.getFirstParameterValue("appToken");
 
         AdjustConfig config = new AdjustConfig(this.context, appToken, environment);
+        config.setBasePath(basePath);
 
         config.setLogLevel(LogLevel.VERBOSE);
 

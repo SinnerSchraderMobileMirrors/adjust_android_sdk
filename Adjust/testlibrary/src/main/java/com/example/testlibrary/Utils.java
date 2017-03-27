@@ -122,4 +122,11 @@ public class Utils {
                     , message, Arrays.toString(parameters)));
         }
     }
+
+    static String appendBasePath(String basePath, String path) {
+        if (basePath == null) {
+            return path;
+        }
+        return basePath + path;
+    }
 }

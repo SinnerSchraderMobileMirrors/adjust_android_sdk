@@ -19,8 +19,8 @@ public class AttributionHandler implements IAttributionHandler {
     private ActivityPackage attributionPackage;
     private TimerOnce timer;
     private static final String ATTRIBUTION_TIMER_NAME = "Attribution timer";
-
     private boolean paused;
+    private String basePath;
 
     public URL lastUrlUsed;
 
@@ -58,6 +58,7 @@ public class AttributionHandler implements IAttributionHandler {
             }
         }, ATTRIBUTION_TIMER_NAME);
 
+        basePath = activityHandler.getBasePath();
         init(activityHandler, attributionPackage, startsSending);
     }
 
@@ -222,7 +223,11 @@ public class AttributionHandler implements IAttributionHandler {
         String initialPath = "";
 
         try {
-            URL baseUrl = new URL(AdjustFactory.getBaseUrl());
+            String url = AdjustFactory.getBaseUrl();
+            if (basePath != null) {
+                url += basePath;
+            }
+            URL baseUrl = new URL(url);
             scheme = baseUrl.getProtocol();
             authority = baseUrl.getAuthority();
             initialPath = baseUrl.getPath();

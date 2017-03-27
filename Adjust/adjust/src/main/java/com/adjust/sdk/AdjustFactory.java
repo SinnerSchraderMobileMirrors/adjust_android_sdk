@@ -35,7 +35,7 @@ public class AdjustFactory {
         }
     }
 
-    public static IPackageHandler getPackageHandler(ActivityHandler activityHandler,
+    public static IPackageHandler getPackageHandler(IActivityHandler activityHandler,
                                                     Context context,
                                                     boolean startsSending) {
         if (packageHandler == null) {
@@ -137,12 +137,12 @@ public class AdjustFactory {
         return new URLGetConnection(AdjustFactory.httpsURLConnection, url);
     }
 
-    public static ISdkClickHandler getSdkClickHandler(boolean startsSending) {
+    public static ISdkClickHandler getSdkClickHandler(IActivityHandler activityHandler, boolean startsSending) {
         if (sdkClickHandler == null) {
-            return new SdkClickHandler(startsSending);
+            return new SdkClickHandler(activityHandler, startsSending);
         }
 
-        sdkClickHandler.init(startsSending);
+        sdkClickHandler.init(activityHandler, startsSending);
         return sdkClickHandler;
     }
 

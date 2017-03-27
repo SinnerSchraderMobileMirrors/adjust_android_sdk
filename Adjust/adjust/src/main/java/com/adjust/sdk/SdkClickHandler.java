@@ -18,6 +18,7 @@ public class SdkClickHandler implements ISdkClickHandler {
     private boolean paused;
     private List<ActivityPackage> packageQueue;
     private BackoffStrategy backoffStrategy;
+    private String basePath;
 
     @Override
     public void teardown() {
@@ -37,17 +38,18 @@ public class SdkClickHandler implements ISdkClickHandler {
         backoffStrategy = null;
     }
 
-    public SdkClickHandler(boolean startsSending) {
-        init(startsSending);
+    public SdkClickHandler(IActivityHandler activityHandler, boolean startsSending) {
+        init(activityHandler, startsSending);
         this.logger = AdjustFactory.getLogger();
         this.scheduledExecutor = new CustomScheduledExecutor("SdkClickHandler", false);
         this.backoffStrategy = AdjustFactory.getSdkClickBackoffStrategy();
     }
 
     @Override
-    public void init(boolean startsSending) {
+    public void init(IActivityHandler activityHandler, boolean startsSending) {
         this.paused = !startsSending;
         this.packageQueue = new ArrayList<ActivityPackage>();
+        this.basePath = activityHandler.getBasePath();
     }
 
     @Override
@@ -119,7 +121,12 @@ public class SdkClickHandler implements ISdkClickHandler {
     }
 
     private void sendSdkClickI(ActivityPackage sdkClickPackage) {
-        String targetURL = AdjustFactory.getBaseUrl() + sdkClickPackage.getPath();
+        String url = AdjustFactory.getBaseUrl();
+        if (basePath != null) {
+            url += basePath;
+        }
+
+        String targetURL = url + sdkClickPackage.getPath();
 
         try {
             HttpsURLConnection connection = Util.createPOSTHttpsURLConnection(

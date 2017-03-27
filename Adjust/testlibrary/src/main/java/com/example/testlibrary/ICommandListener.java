@@ -9,4 +9,5 @@ import java.util.Map;
 
 public interface ICommandListener {
     void executeCommand(String className, String methodName, Map<String, List<String>> parameters);
+    void setBasePath(String basePath);
 }
