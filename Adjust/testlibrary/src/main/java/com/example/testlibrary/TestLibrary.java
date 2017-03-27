@@ -28,6 +28,9 @@ public class TestLibrary {
     ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
     ICommandListener commandListener;
     ICommandJsonListener commandJsonListener;
+    ControlChannel controlChannel = new ControlChannel(this);
+    String currentTest;
+    Future<?> lastFuture;
     String currentBasePath;
 
     public TestLibrary(String baseUrl, ICommandJsonListener commandJsonListener) {
@@ -48,7 +51,7 @@ public class TestLibrary {
     }
 
     public void initTestSession(final String clientSdk) {
-        executor.execute(new Runnable() {
+        lastFuture = executor.submit(new Runnable() {
             @Override
             public void run() {
                 sendTestSessionI(clientSdk);
@@ -57,7 +60,7 @@ public class TestLibrary {
     }
 
     public void readHeaders(final Util.HttpResponse httpResponse) {
-        executor.submit(new Runnable() {
+        lastFuture = executor.submit(new Runnable() {
             @Override
             public void run() {
                 readHeadersI(httpResponse);
@@ -65,6 +68,15 @@ public class TestLibrary {
         });
     }
 
+    public void flushExecution() {
+        debug("flushExecution");
+        if (lastFuture != null && !lastFuture.isDone()) {
+            debug("lastFuture.cancel");
+            lastFuture.cancel(true);
+        }
+        executor.shutdownNow();
+        executor = new ScheduledThreadPoolExecutor(1);
+    }
 
     private void sendTestSessionI(String clientSdk) {
         Util.HttpResponse httpResponse = sendPostI("/init_session", clientSdk);
@@ -77,6 +89,7 @@ public class TestLibrary {
 
     public void readHeadersI(Util.HttpResponse httpResponse) {
         if (httpResponse.headerFields.containsKey(TEST_SESSION_END_HEADER)) {
+            controlChannel.endControlChannel();
             debug("TestSessionEnd received");
             return;
         }
@@ -87,6 +100,7 @@ public class TestLibrary {
 
         if (httpResponse.headerFields.containsKey(TEST_SCRIPT_HEADER)) {
             currentTest = httpResponse.headerFields.get(TEST_SCRIPT_HEADER).get(0);
+            controlChannel.startControlChannel();
 
             List<TestCommand> testCommands = Arrays.asList(gson.fromJson(httpResponse.response, TestCommand[].class));
             execTestCommandsI(testCommands);
