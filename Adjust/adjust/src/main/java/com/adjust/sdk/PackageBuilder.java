@@ -256,6 +256,7 @@ class PackageBuilder {
     private void injectCommonParameters(Map<String, String> parameters) {
         PackageBuilder.addDate(parameters, "created_at", createdAt);
         PackageBuilder.addBoolean(parameters, "attribution_deeplink", true);
+        PackageBuilder.addString(parameters, "app_secret", adjustConfig.appSecret);
     }
 
     private void injectAttribution(Map<String, String> parameters) {
