@@ -152,6 +152,27 @@ class PackageBuilder {
         return infoPackage;
     }
 
+    public ActivityPackage buildErrorPackage(String source, String message, ActivityKind activityKind) {
+        Map<String, String> parameters = new HashMap<String, String>();
+
+        PackageBuilder.addString(parameters, "sdk_version", deviceInfo.clientSdk);
+        PackageBuilder.addString(parameters, "app_token", adjustConfig.appToken);
+        PackageBuilder.addString(parameters, "device_name", deviceInfo.deviceName);
+        PackageBuilder.addString(parameters, "app_version", deviceInfo.appVersion);
+        PackageBuilder.addString(parameters, "os_name", deviceInfo.osName);
+        PackageBuilder.addString(parameters, "os_version", deviceInfo.osVersion);
+        PackageBuilder.addHashedDeviceId(parameters, "device_id_hash", Util.getPlayAdId(adjustConfig.context), deviceInfo.macShortMd5, deviceInfo.androidId);
+        PackageBuilder.addString(parameters, "activity_kind", activityKind.toString());
+        PackageBuilder.addString(parameters, "error", message);
+
+        ActivityPackage errorPackage = new ActivityPackage(ActivityKind.ERROR);
+        errorPackage.setPath("/error");
+        errorPackage.setSuffix("");
+        errorPackage.setParameters(parameters);
+
+        return errorPackage;
+    }
+
     public ActivityPackage buildAttributionPackage() {
         Map<String, String> parameters = getIdsParameters();
 
@@ -362,5 +383,25 @@ class PackageBuilder {
         String doubleString = String.format(Locale.US, "%.5f", value);
 
         PackageBuilder.addString(parameters, key, doubleString);
+    }
+
+    public static void addHashedDeviceId(Map<String, String> parameters, String key, String gpsAdid, String macMd5, String androidId) {
+        String mostValuableDeviceId = null;
+
+        if (null != gpsAdid) {
+            mostValuableDeviceId = gpsAdid;
+        } else if (null != macMd5) {
+            mostValuableDeviceId = macMd5;
+        } else if (null != androidId) {
+            mostValuableDeviceId = androidId;
+        }
+
+        if (null == mostValuableDeviceId) {
+            return;
+        }
+
+        mostValuableDeviceId = mostValuableDeviceId.concat("adjust");
+
+        PackageBuilder.addString(parameters, key, Util.md5(mostValuableDeviceId));
     }
 }
