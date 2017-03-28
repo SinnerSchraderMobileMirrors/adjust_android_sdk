@@ -20,6 +20,7 @@ public class AdjustFactory {
     private static long timerStart = -1;
     private static long sessionInterval = -1;
     private static long subsessionInterval = -1;
+    private static BackoffStrategy errorBackoffStrategy = null;
     private static BackoffStrategy sdkClickBackoffStrategy = null;
     private static BackoffStrategy packageHandlerBackoffStrategy = null;
     private static long maxDelayStart = -1;
@@ -85,6 +86,14 @@ public class AdjustFactory {
             return Constants.ONE_SECOND;
         }
         return subsessionInterval;
+    }
+
+    public static BackoffStrategy getErrorBackoffStrategy() {
+        if (errorBackoffStrategy == null) {
+            return BackoffStrategy.SHORT_WAIT;
+        }
+
+        return errorBackoffStrategy;
     }
 
     public static BackoffStrategy getSdkClickBackoffStrategy() {
@@ -177,6 +186,10 @@ public class AdjustFactory {
 
     public static void setSubsessionInterval(long subsessionInterval) {
         AdjustFactory.subsessionInterval = subsessionInterval;
+    }
+
+    public static void setErrorBackoffStrategy(BackoffStrategy errorBackoffStrategy) {
+        AdjustFactory.errorBackoffStrategy = errorBackoffStrategy;
     }
 
     public static void setSdkClickBackoffStrategy(BackoffStrategy sdkClickBackoffStrategy) {
