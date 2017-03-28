@@ -144,12 +144,12 @@ class PackageBuilder {
 
         PackageBuilder.addString(parameters, "source", source);
 
-        ActivityPackage clickPackage = getDefaultActivityPackage(ActivityKind.INFO);
-        clickPackage.setPath("/sdk_info");
-        clickPackage.setSuffix("");
-        clickPackage.setParameters(parameters);
+        ActivityPackage infoPackage = getDefaultActivityPackage(ActivityKind.INFO);
+        infoPackage.setPath("/sdk_info");
+        infoPackage.setSuffix("");
+        infoPackage.setParameters(parameters);
 
-        return clickPackage;
+        return infoPackage;
     }
 
     public ActivityPackage buildAttributionPackage() {
