@@ -32,6 +32,7 @@ public class AdjustConfig {
     ILogger logger;
     String userAgent;
     String pushToken;
+    String appSecret;
 
     public static final String ENVIRONMENT_SANDBOX = "sandbox";
     public static final String ENVIRONMENT_PRODUCTION = "production";
@@ -83,7 +84,13 @@ public class AdjustConfig {
         this.sdkPrefix = sdkPrefix;
     }
 
-    public void setProcessName(String processName) { this.processName = processName; }
+    public void setProcessName(String processName) {
+        this.processName = processName;
+    }
+
+    public void setAppSecret(String appSecret) {
+        this.appSecret = appSecret;
+    }
 
     public void setDefaultTracker(String defaultTracker) {
         this.defaultTracker = defaultTracker;
