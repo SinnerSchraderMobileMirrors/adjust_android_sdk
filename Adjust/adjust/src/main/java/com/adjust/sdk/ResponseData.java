@@ -14,6 +14,7 @@ public class ResponseData {
     public String adid;
     public boolean success;
     public boolean willRetry;
+    public boolean skipPackage;
     public JSONObject jsonResponse;
     public AdjustAttribution attribution;
 

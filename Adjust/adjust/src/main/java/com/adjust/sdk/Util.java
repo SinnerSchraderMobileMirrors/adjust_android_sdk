@@ -71,6 +71,7 @@ public class Util {
     public static final SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT, Locale.US);
 
     private static String userAgent;
+    private static ActivityPackage errorPackage;
 
     private static ILogger getLogger() {
         return AdjustFactory.getLogger();
@@ -217,6 +218,13 @@ public class Util {
         StringBuffer sb = new StringBuffer();
         ILogger logger = getLogger();
         Integer responseCode = null;
+
+        ResponseData responseData = ResponseData.buildResponseData(activityPackage);
+        if (connection == null) {
+            responseData.skipPackage = true;
+            return responseData;
+        }
+
         try {
             // connection.connect();
 
@@ -244,8 +252,6 @@ public class Util {
                 connection.disconnect();
             }
         }
-
-        ResponseData responseData = ResponseData.buildResponseData(activityPackage);
 
         String stringResponse = sb.toString();
         logger.verbose("Response: %s", stringResponse);
@@ -293,6 +299,12 @@ public class Util {
     public static AdjustFactory.URLGetConnection createGETHttpsURLConnection(String urlString, String clientSdk)
             throws IOException
     {
+        return createGETHttpsURLConnection(urlString, clientSdk, true);
+    }
+
+    private static AdjustFactory.URLGetConnection createGETHttpsURLConnection(String urlString, String clientSdk, boolean checkCerts)
+            throws IOException
+    {
         HttpsURLConnection connection = null;
         try {
             URL url = new URL(urlString);
@@ -303,6 +315,18 @@ public class Util {
 
             connection.setRequestMethod("GET");
 
+            connection.connect();
+
+            if (checkCerts && !isConnectionValid(connection)) {
+                // disconnect here, since the response is not going to be read
+                if (connection != null) {
+                    connection.disconnect();
+                }
+                sendErrorRequest();
+                urlGetConnection.httpsURLConnection = null;
+                return urlGetConnection;
+            }
+
             return urlGetConnection;
         } catch (IOException e) {
             throw e;
@@ -310,8 +334,16 @@ public class Util {
     }
 
     public static HttpsURLConnection createPOSTHttpsURLConnection(String urlString, String clientSdk,
+                                                                   Map<String, String> parameters,
+                                                                   int queueSize)
+            throws IOException
+    {
+        return createPOSTHttpsURLConnection(urlString, clientSdk, parameters, queueSize, true);
+    }
+
+    private static HttpsURLConnection createPOSTHttpsURLConnection(String urlString, String clientSdk,
                                                                   Map<String, String> parameters,
-                                                                  int queueSize)
+                                                                  int queueSize, boolean checkCerts)
             throws IOException
     {
         DataOutputStream wr = null;
@@ -329,10 +361,13 @@ public class Util {
 
             connection.connect();
 
-            if (isConnectionValid(connection)) {
-                parameters.put("tce", "0");
-            } else {
-                parameters.put("tce", "1");
+            if (checkCerts && !isConnectionValid(connection)) {
+                // disconnect here, since the response is not going to be read
+                if (connection != null) {
+                    connection.disconnect();
+                }
+                sendErrorRequest();
+                return null;
             }
 
             wr = new DataOutputStream(connection.getOutputStream());
@@ -348,6 +383,23 @@ public class Util {
                     wr.close();
                 }
             }catch (Exception e) { }
+        }
+    }
+
+    private static void sendErrorRequest() {
+        ActivityPackage activityPackage = Util.errorPackage;
+
+        String targetURL = Constants.BASE_URL + activityPackage.getPath();
+
+        try {
+            HttpsURLConnection connection = Util.createPOSTHttpsURLConnection(
+                    targetURL,
+                    null,
+                    activityPackage.getParameters(),
+                    0,
+                    false);
+            ResponseData responseData = Util.readHttpResponse(connection, activityPackage);
+        } catch (Exception e) {
         }
     }
 
@@ -386,7 +438,9 @@ public class Util {
     }
 
     public static void setDefaultHttpsUrlConnectionProperties(HttpsURLConnection connection, String clientSdk) {
-        connection.setRequestProperty("Client-SDK", clientSdk);
+        if (clientSdk != null) {
+            connection.setRequestProperty("Client-SDK", clientSdk);
+        }
         connection.setConnectTimeout(Constants.ONE_MINUTE);
         connection.setReadTimeout(Constants.ONE_MINUTE);
         if (userAgent != null) {
@@ -615,6 +669,10 @@ public class Util {
 
     public static void setUserAgent(String userAgent) {
         Util.userAgent = userAgent;
+    }
+
+    public static void setErrorPackage(ActivityPackage activityPackage) {
+        Util.errorPackage = activityPackage;
     }
 
     public static String getVmInstructionSet() {

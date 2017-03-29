@@ -209,6 +209,12 @@ public class AttributionHandler implements IAttributionHandler {
                     attributionPackage.getClientSdk());
 
             ResponseData responseData = Util.readHttpResponse(urlGetConnection.httpsURLConnection, attributionPackage);
+
+            if (responseData.skipPackage) {
+                paused = true;
+                return;
+            }
+
             lastUrlUsed = urlGetConnection.url;
 
             if (!(responseData instanceof AttributionResponseData)) {

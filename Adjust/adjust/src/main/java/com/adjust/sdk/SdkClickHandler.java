@@ -130,7 +130,7 @@ public class SdkClickHandler implements ISdkClickHandler {
 
             ResponseData responseData = Util.readHttpResponse(connection, sdkClickPackage);
 
-            if (responseData.jsonResponse == null) {
+            if (responseData.jsonResponse == null && !responseData.skipPackage) {
                 retrySendingI(sdkClickPackage);
             }
         } catch (UnsupportedEncodingException e) {

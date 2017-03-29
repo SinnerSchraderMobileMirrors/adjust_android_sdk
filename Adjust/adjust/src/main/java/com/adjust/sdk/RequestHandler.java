@@ -67,7 +67,6 @@ public class RequestHandler implements IRequestHandler {
                     activityPackage.getClientSdk(),
                     activityPackage.getParameters(),
                     queueSize);
-
             ResponseData responseData = Util.readHttpResponse(connection, activityPackage);
 
             IPackageHandler packageHandler = packageHandlerWeakRef.get();

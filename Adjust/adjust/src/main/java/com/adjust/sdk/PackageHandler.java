@@ -132,6 +132,11 @@ public class PackageHandler implements IPackageHandler {
     // close the package to retry in the future (after temporary failure)
     @Override
     public void closeFirstPackage(ResponseData responseData, ActivityPackage activityPackage) {
+        if (responseData.skipPackage) {
+            sendNextPackage(responseData);
+            return;
+        }
+
         responseData.willRetry = true;
 
         IActivityHandler activityHandler = activityHandlerWeakRef.get();

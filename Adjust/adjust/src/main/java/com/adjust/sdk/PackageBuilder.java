@@ -152,7 +152,7 @@ class PackageBuilder {
         return infoPackage;
     }
 
-    public ActivityPackage buildErrorPackage(String source, String message, ActivityKind activityKind) {
+    public ActivityPackage buildErrorPackage(String message) {
         Map<String, String> parameters = new HashMap<String, String>();
 
         PackageBuilder.addString(parameters, "sdk_version", deviceInfo.clientSdk);
@@ -162,8 +162,7 @@ class PackageBuilder {
         PackageBuilder.addString(parameters, "os_name", deviceInfo.osName);
         PackageBuilder.addString(parameters, "os_version", deviceInfo.osVersion);
         PackageBuilder.addHashedDeviceId(parameters, "device_id_hash", Util.getPlayAdId(adjustConfig.context), deviceInfo.macShortMd5, deviceInfo.androidId);
-        PackageBuilder.addString(parameters, "activity_kind", activityKind.toString());
-        PackageBuilder.addString(parameters, "error", message);
+        PackageBuilder.addString(parameters, "activity_kind", ActivityKind.ERROR.toString());
 
         ActivityPackage errorPackage = new ActivityPackage(ActivityKind.ERROR);
         errorPackage.setPath("/error");
@@ -278,6 +277,7 @@ class PackageBuilder {
         PackageBuilder.addDate(parameters, "created_at", createdAt);
         PackageBuilder.addBoolean(parameters, "attribution_deeplink", true);
         PackageBuilder.addString(parameters, "app_secret", adjustConfig.appSecret);
+        PackageBuilder.addString(parameters, "tce", "0");
     }
 
     private void injectAttribution(Map<String, String> parameters) {

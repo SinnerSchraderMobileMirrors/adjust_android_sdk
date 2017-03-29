@@ -741,6 +741,11 @@ public class ActivityHandler implements IActivityHandler {
 
         Util.setUserAgent(adjustConfig.userAgent);
 
+        long now = System.currentTimeMillis();
+        PackageBuilder packageBuilder = new PackageBuilder(adjustConfig, deviceInfo, activityState, now);
+        ActivityPackage errorPackage = packageBuilder.buildErrorPackage("connection not validated");
+        Util.setErrorPackage(errorPackage);
+
         packageHandler = AdjustFactory.getPackageHandler(this, adjustConfig.context, toSendI(false));
 
         ActivityPackage attributionPackage = getAttributionPackageI();
