@@ -60,7 +60,6 @@ public class ActivityHandler implements IActivityHandler {
     private AdjustAttribution attribution;
     private IAttributionHandler attributionHandler;
     private ISdkClickHandler sdkClickHandler;
-    private IErrorHandler errorHandler;
     private SessionParameters sessionParameters;
 
     @Override
@@ -88,9 +87,6 @@ public class ActivityHandler implements IActivityHandler {
         if (sdkClickHandler != null) {
             sdkClickHandler.teardown();
         }
-        if (errorHandler != null) {
-            errorHandler.teardown();
-        }
         if (sessionParameters != null) {
             if (sessionParameters.callbackParameters != null) {
                 sessionParameters.callbackParameters.clear();
@@ -115,7 +111,6 @@ public class ActivityHandler implements IActivityHandler {
         adjustConfig = null;
         attributionHandler = null;
         sdkClickHandler = null;
-        errorHandler = null;
         sessionParameters = null;
     }
 
@@ -755,7 +750,6 @@ public class ActivityHandler implements IActivityHandler {
                 toSendI(false));
 
         sdkClickHandler = AdjustFactory.getSdkClickHandler(toSendI(true));
-        errorHandler = AdjustFactory.getErrorHandler(toSendI(true));
 
         if (isToUpdatePackagesI()) {
             updatePackagesI();
@@ -1242,10 +1236,8 @@ public class ActivityHandler implements IActivityHandler {
         // It's possible for the sdk click handler to be active while others are paused.
         // Same for error handler.
         if (!toSendI(true)) {
-            errorHandler.pauseSending();
             sdkClickHandler.pauseSending();
         } else {
-            errorHandler.resumeSending();
             sdkClickHandler.resumeSending();
         }
     }
@@ -1254,7 +1246,6 @@ public class ActivityHandler implements IActivityHandler {
         attributionHandler.resumeSending();
         packageHandler.resumeSending();
         sdkClickHandler.resumeSending();
-        errorHandler.resumeSending();
     }
 
     private boolean updateActivityStateI(long now) {

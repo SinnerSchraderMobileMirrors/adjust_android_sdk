@@ -15,7 +15,6 @@ public class AdjustFactory {
     private static ILogger logger = null;
     private static HttpsURLConnection httpsURLConnection = null;
     private static ISdkClickHandler sdkClickHandler = null;
-    private static IErrorHandler errorHandler = null;
 
     private static long timerInterval = -1;
     private static long timerStart = -1;
@@ -154,16 +153,6 @@ public class AdjustFactory {
         return sdkClickHandler;
     }
 
-    public static IErrorHandler getErrorHandler(boolean startsSending) {
-        if (errorHandler == null) {
-            return new ErrorHandler(startsSending);
-        }
-
-        errorHandler.init(startsSending);
-
-        return errorHandler;
-    }
-
     public static long getMaxDelayStart() {
         if (maxDelayStart == -1) {
             return Constants.ONE_SECOND * 10; // 10 seconds
@@ -225,9 +214,5 @@ public class AdjustFactory {
 
     public static void setSdkClickHandler(ISdkClickHandler sdkClickHandler) {
         AdjustFactory.sdkClickHandler = sdkClickHandler;
-    }
-
-    public static void setErrorHandler(IErrorHandler errorHandler) {
-        AdjustFactory.errorHandler = errorHandler;
     }
 }
