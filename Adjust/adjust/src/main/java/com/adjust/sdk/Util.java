@@ -16,6 +16,7 @@ import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Looper;
 import android.provider.Settings.Secure;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,9 +39,9 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.KeyStore;
 import java.security.MessageDigest;
-import java.security.cert.Certificate;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -53,8 +54,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import static com.adjust.sdk.Constants.ENCODING;
@@ -66,6 +67,7 @@ import static com.adjust.sdk.Constants.SHA1;
  */
 public class Util {
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'Z";
+    private static final String errorMessageUntrustedCA = "CA is untrusted";
     private static final String fieldReadErrorMessage = "Unable to read '%s' field in migration device with message (%s)";
     public static final DecimalFormat SecondsDisplayFormat = new DecimalFormat("0.0");
     public static final SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT, Locale.US);
@@ -220,13 +222,14 @@ public class Util {
         Integer responseCode = null;
 
         ResponseData responseData = ResponseData.buildResponseData(activityPackage);
+
         if (connection == null) {
             responseData.skipPackage = true;
             return responseData;
         }
 
         try {
-            // connection.connect();
+            connection.connect();
 
             responseCode = connection.getResponseCode();
             InputStream inputStream;
@@ -241,11 +244,17 @@ public class Util {
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
             String line;
+
             while ((line = bufferedReader.readLine()) != null) {
                 sb.append(line);
             }
         } catch (Exception e) {
             logger.error("Failed to read response. (%s)", e.getMessage());
+
+            if (e.getMessage().equalsIgnoreCase(errorMessageUntrustedCA)) {
+                sendErrorRequest();
+            }
+
             throw e;
         } finally {
             if (connection != null) {
@@ -261,6 +270,7 @@ public class Util {
         }
 
         JSONObject jsonResponse = null;
+
         try {
             jsonResponse = new JSONObject(stringResponse);
         } catch (JSONException e) {
@@ -285,8 +295,7 @@ public class Util {
             message = "No message found";
         }
 
-        if (responseCode != null &&
-                responseCode == HttpsURLConnection.HTTP_OK) {
+        if (responseCode != null && responseCode == HttpsURLConnection.HTTP_OK) {
             logger.info("%s", message);
             responseData.success = true;
         } else {
@@ -296,36 +305,30 @@ public class Util {
         return responseData;
     }
 
-    public static AdjustFactory.URLGetConnection createGETHttpsURLConnection(String urlString, String clientSdk)
-            throws IOException
-    {
+    public static AdjustFactory.URLGetConnection createGETHttpsURLConnection(
+            String urlString,
+            String clientSdk) throws IOException {
         return createGETHttpsURLConnection(urlString, clientSdk, true);
     }
 
-    private static AdjustFactory.URLGetConnection createGETHttpsURLConnection(String urlString, String clientSdk, boolean checkCerts)
-            throws IOException
-    {
-        HttpsURLConnection connection = null;
+    private static AdjustFactory.URLGetConnection createGETHttpsURLConnection(
+            String urlString,
+            String clientSdk,
+            boolean checkCerts) throws IOException {
+        HttpsURLConnection connection;
+
         try {
             URL url = new URL(urlString);
             AdjustFactory.URLGetConnection urlGetConnection = AdjustFactory.getHttpsURLGetConnection(url);
-
             connection = urlGetConnection.httpsURLConnection;
+
+            if (checkCerts) {
+                setAdjustTrustManager(connection);
+            }
+
             setDefaultHttpsUrlConnectionProperties(connection, clientSdk);
 
             connection.setRequestMethod("GET");
-
-            connection.connect();
-
-            if (checkCerts && !isConnectionValid(connection)) {
-                // disconnect here, since the response is not going to be read
-                if (connection != null) {
-                    connection.disconnect();
-                }
-                sendErrorRequest();
-                urlGetConnection.httpsURLConnection = null;
-                return urlGetConnection;
-            }
 
             return urlGetConnection;
         } catch (IOException e) {
@@ -333,42 +336,37 @@ public class Util {
         }
     }
 
-    public static HttpsURLConnection createPOSTHttpsURLConnection(String urlString, String clientSdk,
-                                                                   Map<String, String> parameters,
-                                                                   int queueSize)
-            throws IOException
-    {
+    public static HttpsURLConnection createPOSTHttpsURLConnection(
+            String urlString,
+            String clientSdk,
+            Map<String, String> parameters,
+            int queueSize) throws IOException {
         return createPOSTHttpsURLConnection(urlString, clientSdk, parameters, queueSize, true);
     }
 
-    private static HttpsURLConnection createPOSTHttpsURLConnection(String urlString, String clientSdk,
-                                                                  Map<String, String> parameters,
-                                                                  int queueSize, boolean checkCerts)
-            throws IOException
-    {
+    private static HttpsURLConnection createPOSTHttpsURLConnection(
+            String urlString,
+            String clientSdk,
+            Map<String, String> parameters,
+            int queueSize,
+            boolean checkCerts) throws IOException {
         DataOutputStream wr = null;
-        HttpsURLConnection connection = null;
+        HttpsURLConnection connection;
+
         try {
             URL url = new URL(urlString);
             connection = AdjustFactory.getHttpsURLConnection(url);
 
-            setDefaultHttpsUrlConnectionProperties(connection, clientSdk);
-            connection.setRequestMethod("POST");
+            if (checkCerts) {
+                setAdjustTrustManager(connection);
+            }
 
+            setDefaultHttpsUrlConnectionProperties(connection, clientSdk);
+
+            connection.setRequestMethod("POST");
             connection.setUseCaches(false);
             connection.setDoInput(true);
             connection.setDoOutput(true);
-
-            connection.connect();
-
-            if (checkCerts && !isConnectionValid(connection)) {
-                // disconnect here, since the response is not going to be read
-                if (connection != null) {
-                    connection.disconnect();
-                }
-                sendErrorRequest();
-                return null;
-            }
 
             wr = new DataOutputStream(connection.getOutputStream());
             wr.writeBytes(getPostDataString(parameters, queueSize));
@@ -382,13 +380,12 @@ public class Util {
                     wr.flush();
                     wr.close();
                 }
-            }catch (Exception e) { }
+            } catch (Exception e) {}
         }
     }
 
     private static void sendErrorRequest() {
         ActivityPackage activityPackage = Util.errorPackage;
-
         String targetURL = Constants.BASE_URL + activityPackage.getPath();
 
         try {
@@ -398,9 +395,9 @@ public class Util {
                     activityPackage.getParameters(),
                     0,
                     false);
-            ResponseData responseData = Util.readHttpResponse(connection, activityPackage);
-        } catch (Exception e) {
-        }
+
+            Util.readHttpResponse(connection, activityPackage);
+        } catch (Exception e) {}
     }
 
     private static String getPostDataString(Map<String, String> body, int queueSize) throws UnsupportedEncodingException {
@@ -710,44 +707,6 @@ public class Util {
         return null;
     }
 
-    private static boolean isConnectionValid(HttpsURLConnection connection) {
-        String trustedThumbprint = "5fb7ee0633e259dbad0c4c9ae6d38f1a61c7dc25";
-
-        try {
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            tmf.init((KeyStore) null);
-
-            TrustManager[] trustManagers = tmf.getTrustManagers();
-            final X509TrustManager x509Tm = (X509TrustManager) trustManagers[0];
-
-            X509Certificate issuers[] = x509Tm.getAcceptedIssuers();
-
-            try {
-                Certificate[] certs = connection.getServerCertificates();
-                X509Certificate intermediate = (X509Certificate)certs[certs.length-1];
-
-                for (int i = 0; i < issuers.length; i++){
-                    try {
-                        intermediate.verify(issuers[i].getPublicKey());
-
-                        // Verification ok. issuers[i] is the issuer.
-                        MessageDigest md = MessageDigest.getInstance("SHA1");
-                        byte[] publicKey = md.digest(issuers[i].getEncoded());
-                        String hexString = byte2HexFormatted(publicKey);
-
-                        if (hexString.equalsIgnoreCase(trustedThumbprint)) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    } catch (Exception e) {}
-                }
-            } catch (Exception e) {}
-        } catch (Exception ex) {}
-
-        return false;
-    }
-
     private static String byte2HexFormatted(byte[] arr) {
         StringBuilder str = new StringBuilder(arr.length * 2);
 
@@ -768,5 +727,64 @@ public class Util {
             // if (i < (arr.length - 1)) str.append(':');
         }
         return str.toString();
+    }
+
+    private static TrustManager[] getTrustManager() {
+        TrustManager[] trustManager = new TrustManager[] { new X509TrustManager() {
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return new java.security.cert.X509Certificate[] {};
+            }
+
+            public void checkClientTrusted(X509Certificate[] chain,
+                                           String authType) throws CertificateException {
+            }
+
+            public void checkServerTrusted(X509Certificate[] chain,
+                                           String authType) throws CertificateException {
+                boolean foundTrustedCertificate = false;
+
+                String trustedThumbprints[] = {
+                        // DigiCert High Assurance EV Root CA
+                        "5FB7EE0633E259DBAD0C4C9AE6D38F1A61C7DC25",
+                        // DigiCert SHA2 Extended Validation Server CA
+                        "7E2F3A4F8FE8FA8A5730AECA029696637E986F3F"
+                };
+
+                for (X509Certificate certificate : chain) {
+                    try {
+                        MessageDigest md = MessageDigest.getInstance("SHA1");
+                        byte[] publicKey = md.digest(certificate.getEncoded());
+                        String hexString = byte2HexFormatted(publicKey);
+
+                        for (String thumbprint : trustedThumbprints) {
+                            if (hexString.equalsIgnoreCase(thumbprint)) {
+                                foundTrustedCertificate = true;
+
+                                break;
+                            }
+                        }
+                    } catch (NoSuchAlgorithmException ex) {}
+
+                    if (foundTrustedCertificate) {
+                        break;
+                    }
+                }
+
+                if (!foundTrustedCertificate) {
+                    throw new CertificateException(errorMessageUntrustedCA);
+                }
+            }
+        }};
+
+        return trustManager;
+    }
+
+    private static void setAdjustTrustManager(HttpsURLConnection connection) {
+        try {
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, getTrustManager(), new java.security.SecureRandom());
+
+            connection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+        } catch (Exception e) {}
     }
 }
