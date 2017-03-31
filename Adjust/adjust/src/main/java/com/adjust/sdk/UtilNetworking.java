@@ -39,6 +39,7 @@ public class UtilNetworking {
             String urlString,
             String clientSdk,
             Map<String, String> parameters,
+            String activityKind,
             int queueSize) throws IOException {
         DataOutputStream wr = null;
         HttpsURLConnection connection;
@@ -47,7 +48,7 @@ public class UtilNetworking {
             URL url = new URL(urlString);
             connection = AdjustFactory.getHttpsURLConnection(url);
 
-            setDefaultHttpsUrlConnectionProperties(connection, clientSdk, parameters);
+            setDefaultHttpsUrlConnectionProperties(connection, clientSdk, parameters, activityKind);
 
             connection.setRequestMethod("POST");
             connection.setUseCaches(false);
@@ -107,7 +108,8 @@ public class UtilNetworking {
     public static AdjustFactory.URLGetConnection createGETHttpsURLConnection(
             Uri.Builder uriBuilder,
             String clientSdk,
-            Map<String, String> parameters) throws IOException {
+            Map<String, String> parameters,
+            String activityKind) throws IOException {
         HttpsURLConnection connection;
 
         try {
@@ -115,7 +117,7 @@ public class UtilNetworking {
             AdjustFactory.URLGetConnection urlGetConnection = AdjustFactory.getHttpsURLGetConnection(url);
             connection = urlGetConnection.httpsURLConnection;
 
-            setDefaultHttpsUrlConnectionProperties(connection, clientSdk, parameters);
+            setDefaultHttpsUrlConnectionProperties(connection, clientSdk, parameters, activityKind);
 
             connection.setRequestMethod("GET");
 
@@ -125,7 +127,7 @@ public class UtilNetworking {
         }
     }
 
-    public static void setDefaultHttpsUrlConnectionProperties(HttpsURLConnection connection, String clientSdk, Map<String, String> parameters) {
+    public static void setDefaultHttpsUrlConnectionProperties(HttpsURLConnection connection, String clientSdk, Map<String, String> parameters, String activityKind) {
         if (clientSdk != null) {
             connection.setRequestProperty("Client-SDK", clientSdk);
         }
@@ -135,22 +137,33 @@ public class UtilNetworking {
             connection.setRequestProperty("User-Agent", userAgent);
         }
 
-        String authorizationHeader = buildAuthorizationHeader(parameters, clientSdk);
+        String authorizationHeader = buildAuthorizationHeader(parameters, clientSdk, activityKind);
         connection.setRequestProperty("Authorization", authorizationHeader);
     }
 
-    private static String buildAuthorizationHeader(Map<String, String> parameters, String clientSdk) {
-        List<String> fieldsList = new ArrayList<String>(Arrays.asList(
-                "app_version",
-                "activity_kind",
-                "created_at",
-                "gps_adid",
-                "app_secret"));
+    private static String buildAuthorizationHeader(Map<String, String> parameters, String clientSdk, String activityKind) {
+        String sdkVersionName = "sdk_version";
+        String sdkVersion = clientSdk;
+        String appVersionName = "app_version";
+        String appVersion = parameters.get(appVersionName);
+        String activityKindName = "activity_kind";
 
-        String signature = buildSignature(fieldsList, parameters, clientSdk);
+        String createdAtName = "created_at";
+        String createdAt = parameters.get(createdAtName);
+        String googleAdIdName = "gps_adid";
+        String googleAdId = parameters.get(googleAdIdName);
+        String appSecretName = "app_secret";
+        String appSecret = parameters.get(appSecretName);
+
+        String clearSignature = String.format("%s%s%s%s%s%s",
+                sdkVersion, appVersion, activityKind, createdAt, googleAdId, appSecret);
+
+        String signature = Util.md5(clearSignature);
+
         String algorithm = "md5";
-        fieldsList.add(0, "sdk_version");
-        String fields = android.text.TextUtils.join(" ", fieldsList);
+
+        String fields = String.format("%s %s %s %s %s %s",
+                sdkVersionName, appVersionName, activityKindName, createdAtName, googleAdIdName, appSecretName);
 
         parameters.remove("app_secret");
 
@@ -162,20 +175,6 @@ public class UtilNetworking {
 
         getLogger().verbose("authorizationHeader clear: %s", authorizationHeader);
         return authorizationHeader;
-    }
-
-    private static String buildSignature(List<String> fieldsList, Map<String, String> parameters, String clientSdk) {
-        StringBuilder signatureBuilder = new StringBuilder();
-        signatureBuilder.append(clientSdk);
-        for (String fieldName : fieldsList) {
-            String fieldValue = parameters.get(fieldName);
-            if (fieldValue == null) {
-                fieldValue = "";
-            }
-            signatureBuilder.append(fieldValue);
-        }
-        String clearSignature = signatureBuilder.toString();
-        return Util.md5(clearSignature);
     }
 
     private static Uri buildUriI(Uri.Builder uriBuilder, Map<String, String> parameters) {

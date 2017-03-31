@@ -126,6 +126,7 @@ public class SdkClickHandler implements ISdkClickHandler {
                     targetURL,
                     sdkClickPackage.getClientSdk(),
                     sdkClickPackage.getParameters(),
+                    sdkClickPackage.getActivityKind().toString(),
                     packageQueue.size() - 1);
 
             ResponseData responseData = UtilNetworking.readHttpResponse(connection, sdkClickPackage);

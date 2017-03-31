@@ -207,7 +207,8 @@ public class AttributionHandler implements IAttributionHandler {
             AdjustFactory.URLGetConnection urlGetConnection = UtilNetworking.createGETHttpsURLConnection(
                     uriBuilderI(attributionPackage.getPath()),
                     attributionPackage.getClientSdk(),
-                    attributionPackage.getParameters());
+                    attributionPackage.getParameters(),
+                    attributionPackage.getActivityKind().toString());
 
             ResponseData responseData = UtilNetworking.readHttpResponse(urlGetConnection.httpsURLConnection, attributionPackage);
 
