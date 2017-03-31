@@ -162,7 +162,7 @@ public class UtilNetworking {
 
         String signature = buildSignature(fieldsList, parameters);
         String algorithm = "sha1";
-        String fields = android.text.TextUtils.join(",", fieldsList);
+        String fields = android.text.TextUtils.join(" ", fieldsList);
 
         parameters.remove("app_secret");
 
