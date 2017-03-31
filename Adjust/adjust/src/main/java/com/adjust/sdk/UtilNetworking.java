@@ -1,6 +1,7 @@
 package com.adjust.sdk;
 
 import android.net.Uri;
+import android.util.Base64;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +18,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -69,7 +72,7 @@ public class UtilNetworking {
                 setAdjustTrustManager(connection);
             }
 
-            setDefaultHttpsUrlConnectionProperties(connection, clientSdk);
+            setDefaultHttpsUrlConnectionProperties(connection, clientSdk, parameters);
 
             connection.setRequestMethod("POST");
             connection.setUseCaches(false);
@@ -150,7 +153,7 @@ public class UtilNetworking {
                 setAdjustTrustManager(connection);
             }
 
-            setDefaultHttpsUrlConnectionProperties(connection, clientSdk);
+            setDefaultHttpsUrlConnectionProperties(connection, clientSdk, parameters);
 
             connection.setRequestMethod("GET");
 
@@ -160,7 +163,7 @@ public class UtilNetworking {
         }
     }
 
-    public static void setDefaultHttpsUrlConnectionProperties(HttpsURLConnection connection, String clientSdk) {
+    public static void setDefaultHttpsUrlConnectionProperties(HttpsURLConnection connection, String clientSdk, Map<String, String> parameters) {
         if (clientSdk != null) {
             connection.setRequestProperty("Client-SDK", clientSdk);
         }
@@ -169,8 +172,43 @@ public class UtilNetworking {
         if (userAgent != null) {
             connection.setRequestProperty("User-Agent", userAgent);
         }
+
+        String authorizationHeader = buildAuthorizationHeader(parameters);
+        connection.setRequestProperty("Authorization", authorizationHeader);
     }
 
+    private static String buildAuthorizationHeader(Map<String, String> parameters) {
+        List<String> fieldsList = Arrays.asList(
+                "sdk_version",
+                "app_version",
+                "activity_kind",
+                "created_at",
+                "gps_adid",
+                "app_token");
+
+        String signature = buildSignature(fieldsList, parameters);
+        String algorithm = "sha1";
+        String fields = android.text.TextUtils.join(",", fieldsList);
+
+        String signatureHeader = String.format("signature=\"%s\"", signature);
+        String algorithmHeader = String.format("algorithm=\"%s\"", algorithm);
+        String fieldsHeader = String.format("fields=\"%s\"", fields);
+
+        String authorizationHeader = String.format("Signature %s,%s,%s", signatureHeader, algorithmHeader, fieldsHeader);
+
+        byte[] base64AuthHeaderBytes = authorizationHeader.getBytes();
+        String base64AuthHeader = Base64.encodeToString(base64AuthHeaderBytes, Base64.NO_WRAP);
+
+        return base64AuthHeader;
+    }
+
+    private static String buildSignature(List<String> fieldsList, Map<String, String> parameters) {
+        StringBuilder signatureBuilder = new StringBuilder();
+        for (String fieldName : fieldsList) {
+            signatureBuilder.append(parameters.get(fieldName));
+        }
+        return Util.sha1(signatureBuilder.toString());
+    }
 
     private static Uri buildUriI(Uri.Builder uriBuilder, Map<String, String> parameters) {
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
