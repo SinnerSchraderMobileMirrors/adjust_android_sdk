@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -139,21 +140,21 @@ public class UtilNetworking {
             connection.setRequestProperty("User-Agent", userAgent);
         }
 
-        String authorizationHeader = buildAuthorizationHeader(parameters);
+        String authorizationHeader = buildAuthorizationHeader(parameters, clientSdk);
         connection.setRequestProperty("Authorization", authorizationHeader);
     }
 
-    private static String buildAuthorizationHeader(Map<String, String> parameters) {
-        List<String> fieldsList = Arrays.asList(
-                "sdk_version",
+    private static String buildAuthorizationHeader(Map<String, String> parameters, String clientSdk) {
+        List<String> fieldsList = new ArrayList<String>(Arrays.asList(
                 "app_version",
                 "activity_kind",
                 "created_at",
                 "gps_adid",
-                "app_secret");
+                "app_secret"));
 
-        String signature = buildSignature(fieldsList, parameters);
+        String signature = buildSignature(fieldsList, parameters, clientSdk);
         String algorithm = "sha1";
+        fieldsList.add(0, "sdk_version");
         String fields = android.text.TextUtils.join(" ", fieldsList);
 
         parameters.remove("app_secret");
@@ -164,11 +165,13 @@ public class UtilNetworking {
 
         String authorizationHeader = String.format("Signature %s,%s,%s", signatureHeader, algorithmHeader, fieldsHeader);
 
+        getLogger().verbose("authorizationHeader clear: %s", authorizationHeader);
         return authorizationHeader;
     }
 
-    private static String buildSignature(List<String> fieldsList, Map<String, String> parameters) {
+    private static String buildSignature(List<String> fieldsList, Map<String, String> parameters, String clientSdk) {
         StringBuilder signatureBuilder = new StringBuilder();
+        signatureBuilder.append(clientSdk);
         for (String fieldName : fieldsList) {
             String fieldValue = parameters.get(fieldName);
             if (fieldValue == null) {
