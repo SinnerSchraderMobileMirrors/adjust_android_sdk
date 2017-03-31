@@ -738,8 +738,6 @@ public class ActivityHandler implements IActivityHandler {
 
         long now = System.currentTimeMillis();
         PackageBuilder packageBuilder = new PackageBuilder(adjustConfig, deviceInfo, activityState, now);
-        ActivityPackage errorPackage = packageBuilder.buildErrorPackage("connection not validated");
-        UtilNetworking.setErrorPackage(errorPackage);
 
         packageHandler = AdjustFactory.getPackageHandler(this, adjustConfig.context, toSendI(false));
 

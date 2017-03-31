@@ -152,26 +152,6 @@ class PackageBuilder {
         return infoPackage;
     }
 
-    public ActivityPackage buildErrorPackage(String message) {
-        Map<String, String> parameters = new HashMap<String, String>();
-
-        PackageBuilder.addString(parameters, "sdk_version", deviceInfo.clientSdk);
-        PackageBuilder.addString(parameters, "app_token", adjustConfig.appToken);
-        PackageBuilder.addString(parameters, "device_name", deviceInfo.deviceName);
-        PackageBuilder.addString(parameters, "app_version", deviceInfo.appVersion);
-        PackageBuilder.addString(parameters, "os_name", deviceInfo.osName);
-        PackageBuilder.addString(parameters, "os_version", deviceInfo.osVersion);
-        PackageBuilder.addHashedDeviceId(parameters, "device_id_hash", Util.getPlayAdId(adjustConfig.context), deviceInfo.macShortMd5, deviceInfo.androidId);
-        PackageBuilder.addString(parameters, "activity_kind", ActivityKind.ERROR.toString());
-
-        ActivityPackage errorPackage = new ActivityPackage(ActivityKind.ERROR);
-        errorPackage.setPath("/error");
-        errorPackage.setSuffix("");
-        errorPackage.setParameters(parameters);
-
-        return errorPackage;
-    }
-
     public ActivityPackage buildAttributionPackage() {
         Map<String, String> parameters = getIdsParameters();
 

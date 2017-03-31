@@ -26,7 +26,6 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class UtilNetworking {
     private static String userAgent;
-    private static ActivityPackage errorPackage;
 
     private static ILogger getLogger() {
         return AdjustFactory.getLogger();
@@ -34,10 +33,6 @@ public class UtilNetworking {
 
     public static void setUserAgent(String userAgent) {
         UtilNetworking.userAgent = userAgent;
-    }
-
-    public static void setErrorPackage(ActivityPackage activityPackage) {
-        UtilNetworking.errorPackage = activityPackage;
     }
 
     public static HttpsURLConnection createPOSTHttpsURLConnection(
