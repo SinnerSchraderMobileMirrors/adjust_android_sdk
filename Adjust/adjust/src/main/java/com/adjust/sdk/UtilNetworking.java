@@ -52,25 +52,12 @@ public class UtilNetworking {
             String clientSdk,
             Map<String, String> parameters,
             int queueSize) throws IOException {
-        return createPOSTHttpsURLConnection(urlString, clientSdk, parameters, queueSize, true);
-    }
-
-    private static HttpsURLConnection createPOSTHttpsURLConnection(
-            String urlString,
-            String clientSdk,
-            Map<String, String> parameters,
-            int queueSize,
-            boolean checkCerts) throws IOException {
         DataOutputStream wr = null;
         HttpsURLConnection connection;
 
         try {
             URL url = new URL(urlString);
             connection = AdjustFactory.getHttpsURLConnection(url);
-
-            if (checkCerts) {
-                setAdjustTrustManager(connection);
-            }
 
             setDefaultHttpsUrlConnectionProperties(connection, clientSdk, parameters);
 
@@ -132,26 +119,13 @@ public class UtilNetworking {
     public static AdjustFactory.URLGetConnection createGETHttpsURLConnection(
             Uri.Builder uriBuilder,
             String clientSdk,
-            Map<String, String> parameters) throws IOException
-    {
-        return createGETHttpsURLConnection(uriBuilder, clientSdk, parameters, true);
-    }
-
-    private static AdjustFactory.URLGetConnection createGETHttpsURLConnection(
-            Uri.Builder uriBuilder,
-            String clientSdk,
-            Map<String, String> parameters,
-            boolean checkCerts) throws IOException {
+            Map<String, String> parameters) throws IOException {
         HttpsURLConnection connection;
 
         try {
             URL url = new URL(buildUriI(uriBuilder, parameters).toString());
             AdjustFactory.URLGetConnection urlGetConnection = AdjustFactory.getHttpsURLGetConnection(url);
             connection = urlGetConnection.httpsURLConnection;
-
-            if (checkCerts) {
-                setAdjustTrustManager(connection);
-            }
 
             setDefaultHttpsUrlConnectionProperties(connection, clientSdk, parameters);
 
@@ -260,11 +234,6 @@ public class UtilNetworking {
         }
         catch (Exception e) {
             logger.error("Failed to read response. (%s)", e.getMessage());
-            if (e instanceof UtilNetworking.UntrustedCAException) {
-                sendErrorRequest();
-                responseData.skipPackage = true;
-                return responseData;
-            }
             throw e;
         } finally {
             if (connection != null) {
@@ -314,83 +283,4 @@ public class UtilNetworking {
 
         return responseData;
     }
-
-    private static void sendErrorRequest() {
-        ActivityPackage activityPackage = UtilNetworking.errorPackage;
-        String targetURL = Constants.BASE_URL + activityPackage.getPath();
-
-        try {
-            HttpsURLConnection connection = UtilNetworking.createPOSTHttpsURLConnection(
-                    targetURL,
-                    null,
-                    activityPackage.getParameters(),
-                    0,
-                    false);
-
-            UtilNetworking.readHttpResponse(connection, activityPackage);
-        } catch (Exception e) {}
-    }
-
-    private static TrustManager[] getTrustManager() {
-        TrustManager[] trustManager = new TrustManager[] { new X509TrustManager() {
-            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                return new java.security.cert.X509Certificate[] {};
-            }
-
-            public void checkClientTrusted(X509Certificate[] chain,
-                                           String authType) throws CertificateException {
-            }
-
-            public void checkServerTrusted(X509Certificate[] chain,
-                                           String authType) throws CertificateException {
-                boolean foundTrustedCertificate = false;
-
-                String trustedThumbprints[] = {
-                        // DigiCert High Assurance EV Root CA
-                        "5FB7EE0633E259DBAD0C4C9AE6D38F1A61C7DC25",
-                        // DigiCert SHA2 Extended Validation Server CA
-                        "7E2F3A4F8FE8FA8A5730AECA029696637E986F3F"
-                };
-
-                for (X509Certificate certificate : chain) {
-                    try {
-                        MessageDigest md = MessageDigest.getInstance("SHA1");
-                        byte[] publicKey = md.digest(certificate.getEncoded());
-                        String hexString = Util.byte2HexFormatted(publicKey);
-
-                        for (String thumbprint : trustedThumbprints) {
-                            if (hexString.equalsIgnoreCase(thumbprint)) {
-                                foundTrustedCertificate = true;
-
-                                break;
-                            }
-                        }
-                    } catch (NoSuchAlgorithmException ex) {}
-
-                    if (foundTrustedCertificate) {
-                        break;
-                    }
-                }
-
-                if (!foundTrustedCertificate) {
-                    throw new UntrustedCAException();
-                }
-            }
-        }};
-
-        return trustManager;
-    }
-
-    private static class UntrustedCAException extends CertificateException {
-    }
-
-    private static void setAdjustTrustManager(HttpsURLConnection connection) {
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, getTrustManager(), new java.security.SecureRandom());
-
-            connection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-        } catch (Exception e) {}
-    }
-
 }
