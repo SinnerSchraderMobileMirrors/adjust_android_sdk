@@ -734,12 +734,12 @@ public class ActivityHandler implements IActivityHandler {
             }, DELAY_START_TIMER_NAME);
         }
 
-        Util.setUserAgent(adjustConfig.userAgent);
+        UtilNetworking.setUserAgent(adjustConfig.userAgent);
 
         long now = System.currentTimeMillis();
         PackageBuilder packageBuilder = new PackageBuilder(adjustConfig, deviceInfo, activityState, now);
         ActivityPackage errorPackage = packageBuilder.buildErrorPackage("connection not validated");
-        Util.setErrorPackage(errorPackage);
+        UtilNetworking.setErrorPackage(errorPackage);
 
         packageHandler = AdjustFactory.getPackageHandler(this, adjustConfig.context, toSendI(false));
 

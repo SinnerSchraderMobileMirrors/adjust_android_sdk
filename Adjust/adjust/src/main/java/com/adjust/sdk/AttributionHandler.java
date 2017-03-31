@@ -204,11 +204,12 @@ public class AttributionHandler implements IAttributionHandler {
         logger.verbose("%s", attributionPackage.getExtendedString());
 
         try {
-            AdjustFactory.URLGetConnection urlGetConnection = Util.createGETHttpsURLConnection(
-                    buildUriI(attributionPackage.getPath(), attributionPackage.getParameters()).toString(),
-                    attributionPackage.getClientSdk());
+            AdjustFactory.URLGetConnection urlGetConnection = UtilNetworking.createGETHttpsURLConnection(
+                    uriBuilderI(attributionPackage.getPath()),
+                    attributionPackage.getClientSdk(),
+                    attributionPackage.getParameters());
 
-            ResponseData responseData = Util.readHttpResponse(urlGetConnection.httpsURLConnection, attributionPackage);
+            ResponseData responseData = UtilNetworking.readHttpResponse(urlGetConnection.httpsURLConnection, attributionPackage);
 
             if (responseData.skipPackage) {
                 paused = true;
@@ -228,22 +229,13 @@ public class AttributionHandler implements IAttributionHandler {
         }
     }
 
-    private Uri buildUriI(String path, Map<String, String> parameters) {
+    private Uri.Builder uriBuilderI(String path) {
         Uri.Builder uriBuilder = new Uri.Builder();
 
         uriBuilder.scheme(Constants.SCHEME);
         uriBuilder.authority(Constants.AUTHORITY);
         uriBuilder.appendPath(path);
 
-        for (Map.Entry<String, String> entry : parameters.entrySet()) {
-            uriBuilder.appendQueryParameter(entry.getKey(), entry.getValue());
-        }
-
-        long now = System.currentTimeMillis();
-        String dateString = Util.dateFormatter.format(now);
-
-        uriBuilder.appendQueryParameter("sent_at", dateString);
-
-        return uriBuilder.build();
+        return uriBuilder;
     }
 }

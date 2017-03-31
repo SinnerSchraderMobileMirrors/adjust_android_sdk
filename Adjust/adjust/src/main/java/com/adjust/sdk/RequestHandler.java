@@ -62,12 +62,12 @@ public class RequestHandler implements IRequestHandler {
         String targetURL = Constants.BASE_URL + activityPackage.getPath();
 
         try {
-            HttpsURLConnection connection = Util.createPOSTHttpsURLConnection(
+            HttpsURLConnection connection = UtilNetworking.createPOSTHttpsURLConnection(
                     targetURL,
                     activityPackage.getClientSdk(),
                     activityPackage.getParameters(),
                     queueSize);
-            ResponseData responseData = Util.readHttpResponse(connection, activityPackage);
+            ResponseData responseData = UtilNetworking.readHttpResponse(connection, activityPackage);
 
             IPackageHandler packageHandler = packageHandlerWeakRef.get();
             if (packageHandler == null) {
