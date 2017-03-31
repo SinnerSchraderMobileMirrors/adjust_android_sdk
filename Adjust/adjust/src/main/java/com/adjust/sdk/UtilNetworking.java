@@ -148,7 +148,7 @@ public class UtilNetworking {
                 "app_secret"));
 
         String signature = buildSignature(fieldsList, parameters, clientSdk);
-        String algorithm = "sha1";
+        String algorithm = "md5";
         fieldsList.add(0, "sdk_version");
         String fields = android.text.TextUtils.join(" ", fieldsList);
 
@@ -174,7 +174,8 @@ public class UtilNetworking {
             }
             signatureBuilder.append(fieldValue);
         }
-        return Util.sha1(signatureBuilder.toString());
+        String clearSignature = signatureBuilder.toString();
+        return Util.md5(clearSignature);
     }
 
     private static Uri buildUriI(Uri.Builder uriBuilder, Map<String, String> parameters) {
