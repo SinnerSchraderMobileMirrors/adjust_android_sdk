@@ -184,11 +184,13 @@ public class UtilNetworking {
                 "activity_kind",
                 "created_at",
                 "gps_adid",
-                "app_token");
+                "app_secret");
 
         String signature = buildSignature(fieldsList, parameters);
         String algorithm = "sha1";
         String fields = android.text.TextUtils.join(",", fieldsList);
+
+        parameters.remove("app_secret");
 
         String signatureHeader = String.format("signature=\"%s\"", signature);
         String algorithmHeader = String.format("algorithm=\"%s\"", algorithm);
@@ -205,7 +207,11 @@ public class UtilNetworking {
     private static String buildSignature(List<String> fieldsList, Map<String, String> parameters) {
         StringBuilder signatureBuilder = new StringBuilder();
         for (String fieldName : fieldsList) {
-            signatureBuilder.append(parameters.get(fieldName));
+            String fieldValue = parameters.get(fieldName);
+            if (fieldValue == null) {
+                fieldValue = "";
+            }
+            signatureBuilder.append(fieldValue);
         }
         return Util.sha1(signatureBuilder.toString());
     }
