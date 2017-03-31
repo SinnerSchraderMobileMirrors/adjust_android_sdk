@@ -1,7 +1,6 @@
 package com.adjust.sdk;
 
 import android.net.Uri;
-import android.util.Base64;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,18 +13,11 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 /**
  * Created by nonelse on 31.03.17.
@@ -172,10 +164,7 @@ public class UtilNetworking {
 
         String authorizationHeader = String.format("Signature %s,%s,%s", signatureHeader, algorithmHeader, fieldsHeader);
 
-        byte[] base64AuthHeaderBytes = authorizationHeader.getBytes();
-        String base64AuthHeader = Base64.encodeToString(base64AuthHeaderBytes, Base64.NO_WRAP);
-
-        return base64AuthHeader;
+        return authorizationHeader;
     }
 
     private static String buildSignature(List<String> fieldsList, Map<String, String> parameters) {
