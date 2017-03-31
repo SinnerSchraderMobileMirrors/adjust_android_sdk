@@ -67,7 +67,6 @@ import static com.adjust.sdk.Constants.SHA1;
  */
 public class Util {
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'Z";
-    private static final String errorMessageUntrustedCA = "CA is untrusted";
     private static final String fieldReadErrorMessage = "Unable to read '%s' field in migration device with message (%s)";
     public static final DecimalFormat SecondsDisplayFormat = new DecimalFormat("0.0");
     public static final SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT, Locale.US);
@@ -223,11 +222,6 @@ public class Util {
 
         ResponseData responseData = ResponseData.buildResponseData(activityPackage);
 
-        if (connection == null) {
-            responseData.skipPackage = true;
-            return responseData;
-        }
-
         try {
             connection.connect();
 
@@ -248,13 +242,14 @@ public class Util {
             while ((line = bufferedReader.readLine()) != null) {
                 sb.append(line);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             logger.error("Failed to read response. (%s)", e.getMessage());
-
-            if (e.getMessage().equalsIgnoreCase(errorMessageUntrustedCA)) {
+            if (e instanceof UntrustedCAException) {
                 sendErrorRequest();
+                responseData.skipPackage = true;
+                return responseData;
             }
-
             throw e;
         } finally {
             if (connection != null) {
@@ -771,12 +766,15 @@ public class Util {
                 }
 
                 if (!foundTrustedCertificate) {
-                    throw new CertificateException(errorMessageUntrustedCA);
+                    throw new UntrustedCAException();
                 }
             }
         }};
 
         return trustManager;
+    }
+
+    private static class UntrustedCAException extends CertificateException {
     }
 
     private static void setAdjustTrustManager(HttpsURLConnection connection) {
