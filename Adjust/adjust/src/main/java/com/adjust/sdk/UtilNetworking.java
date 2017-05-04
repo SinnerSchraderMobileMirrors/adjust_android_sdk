@@ -241,7 +241,7 @@ public class UtilNetworking {
 
         String signatureHeader = String.format("signature=\"%s\"", signature);
         String algorithmHeader = String.format("algorithm=\"%s\"", algorithm);
-        String fieldsHeader = String.format("header=\"%s\"", fields);
+        String fieldsHeader = String.format("headers=\"%s\"", fields);
 
         String authorizationHeader = String.format("Signature %s,%s,%s", signatureHeader, algorithmHeader, fieldsHeader);
 
