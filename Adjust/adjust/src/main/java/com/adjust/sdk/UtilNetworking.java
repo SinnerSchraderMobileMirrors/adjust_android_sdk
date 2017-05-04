@@ -41,6 +41,8 @@ public class UtilNetworking {
             Map<String, String> parameters = new HashMap<String, String>(activityPackage.getParameters());
 
             setDefaultHttpsUrlConnectionProperties(connection, activityPackage.getClientSdk());
+            String authorizationHeader = buildAuthorizationHeader(parameters, activityPackage.getClientSdk(), activityPackage.getActivityKind().toString());
+            connection.setRequestProperty("Authorization", authorizationHeader);
 
             connection.setRequestMethod("POST");
             connection.setUseCaches(false);
@@ -73,6 +75,8 @@ public class UtilNetworking {
             HttpsURLConnection connection = AdjustFactory.getHttpsURLConnection(url);
 
             setDefaultHttpsUrlConnectionProperties(connection, activityPackage.getClientSdk());
+            String authorizationHeader = buildAuthorizationHeader(parameters, activityPackage.getClientSdk(), activityPackage.getActivityKind().toString());
+            connection.setRequestProperty("Authorization", authorizationHeader);
 
             connection.setRequestMethod("GET");
 
@@ -208,6 +212,43 @@ public class UtilNetworking {
             connection.setRequestProperty("User-Agent", userAgent);
         }
     }
+
+    private static String buildAuthorizationHeader(Map<String, String> parameters, String clientSdk, String activityKind) {
+        String sdkVersionName = "sdk_version";
+        String sdkVersion = clientSdk;
+        String appVersionName = "app_version";
+        String appVersion = parameters.get(appVersionName);
+        String activityKindName = "activity_kind";
+
+        String createdAtName = "created_at";
+        String createdAt = parameters.get(createdAtName);
+        String googleAdIdName = "gps_adid";
+        String googleAdId = parameters.get(googleAdIdName);
+        String appSecretName = "app_secret";
+        String appSecret = parameters.get(appSecretName);
+
+        String clearSignature = String.format("%s%s%s%s%s%s",
+                sdkVersion, appVersion, activityKind, createdAt, googleAdId, appSecret);
+
+        String signature = Util.md5(clearSignature);
+
+        String algorithm = "md5";
+
+        String fields = String.format("%s %s %s %s %s %s",
+                sdkVersionName, appVersionName, activityKindName, createdAtName, googleAdIdName, appSecretName);
+
+        parameters.remove("app_secret");
+
+        String signatureHeader = String.format("signature=\"%s\"", signature);
+        String algorithmHeader = String.format("algorithm=\"%s\"", algorithm);
+        String fieldsHeader = String.format("header=\"%s\"", fields);
+
+        String authorizationHeader = String.format("Signature %s,%s,%s", signatureHeader, algorithmHeader, fieldsHeader);
+
+        getLogger().verbose("authorizationHeader clear: %s", authorizationHeader);
+        return authorizationHeader;
+    }
+
 
     private static Uri buildUri(String path, Map<String, String> parameters) {
         Uri.Builder uriBuilder = new Uri.Builder();
