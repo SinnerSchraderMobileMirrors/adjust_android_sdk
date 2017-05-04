@@ -31,6 +31,7 @@ public class AdjustConfig {
     String pushToken;
     Boolean startEnabled;
     boolean startOffline;
+    String appSecret;
 
     public static final String ENVIRONMENT_SANDBOX = "sandbox";
     public static final String ENVIRONMENT_PRODUCTION = "production";
@@ -86,6 +87,10 @@ public class AdjustConfig {
     }
 
     public void setProcessName(String processName) { this.processName = processName; }
+
+    public void setAppInfo(long info1, long info2, long info3, long info4) {
+        this.appSecret = String.format("%d%d%d%d", info1, info2, info3, info4);
+    }
 
     public void setDefaultTracker(String defaultTracker) {
         this.defaultTracker = defaultTracker;
