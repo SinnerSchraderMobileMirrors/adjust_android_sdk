@@ -42,7 +42,9 @@ public class UtilNetworking {
 
             setDefaultHttpsUrlConnectionProperties(connection, activityPackage.getClientSdk());
             String authorizationHeader = buildAuthorizationHeader(parameters, activityPackage.getClientSdk(), activityPackage.getActivityKind().toString());
-            connection.setRequestProperty("Authorization", authorizationHeader);
+            if (authorizationHeader != null) {
+                connection.setRequestProperty("Authorization", authorizationHeader);
+            }
 
             connection.setRequestMethod("POST");
             connection.setUseCaches(false);
@@ -76,7 +78,9 @@ public class UtilNetworking {
 
             setDefaultHttpsUrlConnectionProperties(connection, activityPackage.getClientSdk());
             String authorizationHeader = buildAuthorizationHeader(parameters, activityPackage.getClientSdk(), activityPackage.getActivityKind().toString());
-            connection.setRequestProperty("Authorization", authorizationHeader);
+            if (authorizationHeader != null) {
+                connection.setRequestProperty("Authorization", authorizationHeader);
+            }
 
             connection.setRequestMethod("GET");
 
@@ -214,6 +218,13 @@ public class UtilNetworking {
     }
 
     private static String buildAuthorizationHeader(Map<String, String> parameters, String clientSdk, String activityKind) {
+        String appSecretName = "app_secret";
+        String appSecret = parameters.get(appSecretName);
+
+        if (appSecret == null || appSecret.length() == 0) {
+            return null;
+        }
+
         String sdkVersionName = "sdk_version";
         String sdkVersion = clientSdk;
         String appVersionName = "app_version";
@@ -224,8 +235,6 @@ public class UtilNetworking {
         String createdAt = parameters.get(createdAtName);
         String googleAdIdName = "gps_adid";
         String googleAdId = parameters.get(googleAdIdName);
-        String appSecretName = "app_secret";
-        String appSecret = parameters.get(appSecretName);
 
         String clearSignature = String.format("%s%s%s%s%s%s",
                 sdkVersion, appVersion, activityKind, createdAt, googleAdId, appSecret);
