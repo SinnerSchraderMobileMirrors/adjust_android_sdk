@@ -59,6 +59,8 @@ public class AdjustCommandExecutor {
                 case "teardown": teardown(); break;
                 case "openDeeplink": openDeeplink(); break;
                 case "sendReferrer": sendReferrer(); break;
+                case "testBegin": testBegin(); break;
+                case "testEnd": testEnd(); break;
             }
         } catch (NullPointerException ex) {
             ex.printStackTrace();
@@ -324,5 +326,22 @@ public class AdjustCommandExecutor {
         String referrer = command.getFirstParameterValue("referrer");
 
         Adjust.setReferrer(referrer);
+    }
+
+    private void testBegin() {
+        if (command.containsParameter("basePath")) {
+            this.basePath = command.getFirstParameterValue("basePath");
+        }
+
+        AdjustFactory.teardown(this.context, true);
+        AdjustFactory.setTimerInterval(-1);
+        AdjustFactory.setTimerStart(-1);
+        AdjustFactory.setSessionInterval(-1);
+        AdjustFactory.setSubsessionInterval(-1);
+        savedInstances = new HashMap<>();
+    }
+
+    private void testEnd() {
+        AdjustFactory.teardown(this.context, true);
     }
 }
