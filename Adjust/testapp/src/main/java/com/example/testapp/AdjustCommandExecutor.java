@@ -72,6 +72,22 @@ public class AdjustCommandExecutor {
         if (command.containsParameter("basePath")) {
             this.basePath = command.getFirstParameterValue("basePath");
         }
+        if (command.containsParameter("timerInterval")) {
+            long timerInterval = Long.parseLong(command.getFirstParameterValue("timerInterval"));
+            AdjustFactory.setTimerInterval(timerInterval);
+        }
+        if (command.containsParameter("timerStart")) {
+            long timerStart = Long.parseLong(command.getFirstParameterValue("timerStart"));
+            AdjustFactory.setTimerStart(timerStart);
+        }
+        if (command.containsParameter("sessionInterval")) {
+            long sessionInterval = Long.parseLong(command.getFirstParameterValue("sessionInterval"));
+            AdjustFactory.setTimerInterval(sessionInterval);
+        }
+        if (command.containsParameter("subsessionInterval")) {
+            long subsessionInterval = Long.parseLong(command.getFirstParameterValue("subsessionInterval"));
+            AdjustFactory.setSubsessionInterval(subsessionInterval);
+        }
     }
 
     private void config() {
