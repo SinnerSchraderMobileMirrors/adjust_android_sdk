@@ -284,18 +284,24 @@ public class AdjustCommandExecutor {
     }
 
     private void addSessionCallbackParameter() {
-        for (List<String> keyValuePairs: command.parameters.values()) {
-            String key = keyValuePairs.get(0);
-            String value = keyValuePairs.get(1);
-            Adjust.addSessionCallbackParameter(key, value);
+        if (command.containsParameter("KeyValue")) {
+            List<String> keyValuePairs = command.parameters.get("KeyValue");
+            for (int i = 0; i<keyValuePairs.size() ; i = i+2) {
+                String key = keyValuePairs.get(i);
+                String value = keyValuePairs.get(i+1);
+                Adjust.addSessionCallbackParameter(key, value);
+            }
         }
     }
 
     private void addSessionPartnerParameter() {
-        for (List<String> keyValuePairs: command.parameters.values()) {
-            String key = keyValuePairs.get(0);
-            String value = keyValuePairs.get(1);
-            Adjust.addSessionPartnerParameter(key, value);
+        if (command.containsParameter("KeyValue")) {
+            List<String> keyValuePairs = command.parameters.get("KeyValue");
+            for (int i = 0; i<keyValuePairs.size() ; i = i+2) {
+                String key = keyValuePairs.get(i);
+                String value = keyValuePairs.get(i+1);
+                Adjust.addSessionPartnerParameter(key, value);
+            }
         }
     }
 
