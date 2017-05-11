@@ -111,6 +111,11 @@ public class Adjust {
         adjustInstance.resetSessionPartnerParameters();
     }
 
+    public static void setExternalDeviceId(String externalDeviceId) {
+        AdjustInstance adjustInstance = Adjust.getDefaultInstance();
+        adjustInstance.setExternalDeviceId(externalDeviceId);
+    }
+
     public static void setPushToken(String token) {
         AdjustInstance adjustInstance = Adjust.getDefaultInstance();
         adjustInstance.setPushToken(token);

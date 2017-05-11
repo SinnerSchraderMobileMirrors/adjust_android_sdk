@@ -53,6 +53,8 @@ public interface IActivityHandler {
 
     void resetSessionPartnerParameters();
 
+    void setExternalDeviceId(String externalDeviceId);
+
     void teardown(boolean deleteState);
 
     void setPushToken(String token);
