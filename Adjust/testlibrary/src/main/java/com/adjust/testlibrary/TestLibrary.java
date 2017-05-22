@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
@@ -63,7 +64,7 @@ public class TestLibrary {
 
     private void resetTestLibrary() {
         executor = new ScheduledThreadPoolExecutor(1);
-        waitControlQueue = new SynchronousQueue<>();
+        waitControlQueue = new LinkedBlockingQueue<>();
         lastFuture = null;
     }
 

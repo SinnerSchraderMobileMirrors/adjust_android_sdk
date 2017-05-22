@@ -73,12 +73,8 @@ public class ControlChannel {
     }
 
     void endWait(String waitEndReason) {
-        try {
-            debug("End wait from control channel due to %s", waitEndReason);
-            testLibrary.waitControlQueue.put(waitEndReason);
-            debug("Wait ended from control channel due to %s", waitEndReason);
-        } catch (InterruptedException e) {
-            debug("wait put error: %s", e.getMessage());
-        }
+        debug("End wait from control channel due to %s", waitEndReason);
+        testLibrary.waitControlQueue.offer(waitEndReason);
+        debug("Wait ended from control channel due to %s", waitEndReason);
     }
 }
