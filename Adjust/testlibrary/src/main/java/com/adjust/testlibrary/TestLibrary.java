@@ -86,12 +86,14 @@ public class TestLibrary {
         });
     }
 
-    public void flushExecution() {
+    void flushExecution() {
         debug("flushExecution");
+        /*
         if (lastFuture != null && !lastFuture.isDone()) {
             debug("lastFuture.cancel");
             lastFuture.cancel(true);
         }
+        */
         executor.shutdownNow();
 
         resetTestLibrary();
