@@ -61,15 +61,36 @@ public class TestLibrary {
     private TestLibrary(String baseUrl) {
         this.baseUrl = baseUrl;
         debug("base url: %s", baseUrl);
-        resetTestLibrary();
     }
 
-    private void resetTestLibrary() {
+    void resetTestLibrary() {
+        teardown(true);
+
         executor = Executors.newCachedThreadPool();
         waitControlQueue = new LinkedBlockingQueue<String>();
     }
 
+    private void teardown(boolean shutdownNow) {
+        if (executor != null) {
+            if (shutdownNow) {
+                debug("test library executor shutdownNow");
+                executor.shutdownNow();
+            } else {
+                debug("test library executor shutdown");
+                executor.shutdown();
+            }
+        }
+        executor = null;
+
+        if (waitControlQueue != null) {
+            waitControlQueue.clear();
+        }
+        waitControlQueue = null;
+    }
+
     public void initTestSession(final String clientSdk) {
+        resetTestLibrary();
+
         executor.submit(new Runnable() {
             @Override
             public void run() {
@@ -87,12 +108,6 @@ public class TestLibrary {
         });
     }
 
-    void flushExecution() {
-        debug("flushExecution");
-        executor.shutdownNow();
-
-        resetTestLibrary();
-    }
 
     private void sendTestSessionI(String clientSdk) {
         UtilsNetworking.HttpResponse httpResponse = sendPostI("/init_session", clientSdk);
@@ -109,6 +124,7 @@ public class TestLibrary {
                 controlChannel.teardown();
             }
             controlChannel = null;
+            teardown(false);
             debug("TestSessionEnd received");
             return;
         }

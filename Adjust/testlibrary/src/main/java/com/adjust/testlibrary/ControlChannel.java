@@ -21,6 +21,7 @@ public class ControlChannel {
 
     ExecutorService controlChannelExecutor = Executors.newCachedThreadPool();
     TestLibrary testLibrary;
+    private boolean closed = false;
 
     public ControlChannel(TestLibrary testLibrary) {
         this.testLibrary = testLibrary;
@@ -33,6 +34,7 @@ public class ControlChannel {
             controlChannelExecutor.shutdown();
         }
 
+        closed = true;
         controlChannelExecutor = null;
     }
 
@@ -57,9 +59,13 @@ public class ControlChannel {
     }
 
     void readControlHeaders(UtilsNetworking.HttpResponse httpResponse) {
+        if (closed) {
+            debug("control channel already closed");
+            return;
+        }
         if (httpResponse.headerFields.containsKey(TEST_CANCELTEST_HEADER)) {
             debug("Test canceled due to %s", httpResponse.headerFields.get(TEST_CANCELTEST_HEADER).get(0));
-            testLibrary.flushExecution();
+            testLibrary.resetTestLibrary();
             testLibrary.readHeaders(httpResponse);
         }
         if (httpResponse.headerFields.containsKey(TEST_ENDWAIT_HEADER)) {
