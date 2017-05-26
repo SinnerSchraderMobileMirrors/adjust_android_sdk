@@ -82,7 +82,7 @@ public class AdjustCommandExecutor {
         }
         if (command.containsParameter("sessionInterval")) {
             long sessionInterval = Long.parseLong(command.getFirstParameterValue("sessionInterval"));
-            AdjustFactory.setTimerInterval(sessionInterval);
+            AdjustFactory.setSessionInterval(sessionInterval);
         }
         if (command.containsParameter("subsessionInterval")) {
             long subsessionInterval = Long.parseLong(command.getFirstParameterValue("subsessionInterval"));
