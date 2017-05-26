@@ -7,11 +7,14 @@ import com.google.gson.Gson;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static com.adjust.testlibrary.Constants.BASE_PATH_HEADER;
@@ -30,13 +33,12 @@ import static com.adjust.testlibrary.UtilsNetworking.sendPostI;
 
 public class TestLibrary {
     static String baseUrl;
-    ScheduledThreadPoolExecutor executor;
+    ExecutorService executor;
     ICommandListener commandListener;
     ICommandJsonListener commandJsonListener;
     ICommandRawJsonListener commandRawJsonListener;
     ControlChannel controlChannel;
     String currentTest;
-    Future<?> lastFuture;
     String currentBasePath;
     Gson gson = new Gson();
     BlockingQueue<String> waitControlQueue;
@@ -63,13 +65,12 @@ public class TestLibrary {
     }
 
     private void resetTestLibrary() {
-        executor = new ScheduledThreadPoolExecutor(1);
-        waitControlQueue = new LinkedBlockingQueue<>();
-        lastFuture = null;
+        executor = Executors.newCachedThreadPool();
+        waitControlQueue = new LinkedBlockingQueue<String>();
     }
 
     public void initTestSession(final String clientSdk) {
-        lastFuture = executor.submit(new Runnable() {
+        executor.submit(new Runnable() {
             @Override
             public void run() {
                 sendTestSessionI(clientSdk);
@@ -77,8 +78,8 @@ public class TestLibrary {
         });
     }
 
-    public void readHeaders(final UtilsNetworking.HttpResponse httpResponse) {
-        lastFuture = executor.submit(new Runnable() {
+    void readHeaders(final UtilsNetworking.HttpResponse httpResponse) {
+        executor.submit(new Runnable() {
             @Override
             public void run() {
                 readHeadersI(httpResponse);
@@ -88,12 +89,6 @@ public class TestLibrary {
 
     void flushExecution() {
         debug("flushExecution");
-        /*
-        if (lastFuture != null && !lastFuture.isDone()) {
-            debug("lastFuture.cancel");
-            lastFuture.cancel(true);
-        }
-        */
         executor.shutdownNow();
 
         resetTestLibrary();

@@ -1,5 +1,7 @@
 package com.adjust.testlibrary;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -17,8 +19,7 @@ public class ControlChannel {
     private static final String CONTROL_START_PATH = "/control_start";
     private static final String CONTROL_CONTINUE_PATH = "/control_continue";
 
-    ScheduledThreadPoolExecutor controlChannelExecutor = new ScheduledThreadPoolExecutor(1);
-    Future<?> controlChannelFuture;
+    ExecutorService controlChannelExecutor = Executors.newCachedThreadPool();
     TestLibrary testLibrary;
 
     public ControlChannel(TestLibrary testLibrary) {
@@ -27,20 +28,16 @@ public class ControlChannel {
     }
 
     public void teardown() {
-        debug("ControlChannel teardown");
-        if (controlChannelFuture != null && !controlChannelFuture.isDone()) {
-            debug("ControlChannel lastFuture.cancel");
-            controlChannelFuture.cancel(true);
-        }
-        controlChannelFuture = null;
         if (controlChannelExecutor != null) {
-            controlChannelExecutor.shutdownNow();
+            debug("controlChannelExecutor shutdown");
+            controlChannelExecutor.shutdown();
         }
+
         controlChannelExecutor = null;
     }
 
     private void sendControlRequest(final String controlPath) {
-        this.controlChannelFuture = controlChannelExecutor.submit(new Runnable() {
+        controlChannelExecutor.submit(new Runnable() {
             @Override
             public void run() {
                 long timeBefore = System.nanoTime();
