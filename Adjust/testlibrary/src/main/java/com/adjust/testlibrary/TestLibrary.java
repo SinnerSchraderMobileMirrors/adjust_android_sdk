@@ -99,6 +99,15 @@ public class TestLibrary {
         });
     }
 
+    public void sendInfoToServer(final Map<String, String> infoToServer) {
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                sendInfoToServerI(infoToServer);
+            }
+        });
+    }
+
     void readHeaders(final UtilsNetworking.HttpResponse httpResponse) {
         executor.submit(new Runnable() {
             @Override
@@ -108,9 +117,18 @@ public class TestLibrary {
         });
     }
 
-
     private void sendTestSessionI(String clientSdk) {
         UtilsNetworking.HttpResponse httpResponse = sendPostI("/init_session", clientSdk);
+        if (httpResponse == null) {
+            return;
+        }
+
+        readHeadersI(httpResponse);
+    }
+
+    private void sendInfoToServerI(Map<String, String> infoToServer) {
+        debug("sendInfoToServerI called");
+        UtilsNetworking.HttpResponse httpResponse = sendPostI(Utils.appendBasePath(currentBasePath, "/test_info"), null, infoToServer);
         if (httpResponse == null) {
             return;
         }

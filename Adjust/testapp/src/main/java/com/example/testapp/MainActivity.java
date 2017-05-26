@@ -26,7 +26,7 @@ import javax.net.ssl.X509TrustManager;
 import static com.example.testapp.CommandListener.debug;
 
 public class MainActivity extends AppCompatActivity {
-    private TestLibrary testLibrary;
+    public static TestLibrary testLibrary;
     private CommandListener commandListener;
     public static final String TAG = "TestApp";
 

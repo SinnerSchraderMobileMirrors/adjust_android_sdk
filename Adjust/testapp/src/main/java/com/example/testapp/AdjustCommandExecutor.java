@@ -112,12 +112,6 @@ public class AdjustCommandExecutor {
             String logLevel = command.getFirstParameterValue("logLevel");
 //            adjustConfig.setLogLevel(LogLevel.valueOf(logLevel));
             adjustConfig.setLogLevel(LogLevel.VERBOSE);
-            adjustConfig.setOnAttributionChangedListener(new OnAttributionChangedListener() {
-                @Override
-                public void onAttributionChanged(AdjustAttribution attribution) {
-                    Log.d("TestApp", "attribution = " + attribution.toString());
-                }
-            });
 
             savedInstances.put(configName, adjustConfig);
         }
@@ -178,6 +172,26 @@ public class AdjustCommandExecutor {
             String userAgent = command.getFirstParameterValue("userAgent");
             adjustConfig.setUserAgent(userAgent);
         }
+
+        if (command.containsParameter("attributionCallbackSendAll")) {
+            adjustConfig.setOnAttributionChangedListener(new OnAttributionChangedListener() {
+                @Override
+                public void onAttributionChanged(AdjustAttribution attribution) {
+                    Log.d("TestApp", "attribution = " + attribution.toString());
+                    Map<String, String> attributionMap = new HashMap<String, String>(8);
+                    attributionMap.put("trackerToken", attribution.trackerToken);
+                    attributionMap.put("trackerName", attribution.trackerName);
+                    attributionMap.put("network", attribution.network);
+                    attributionMap.put("campaign", attribution.campaign);
+                    attributionMap.put("adgroup", attribution.adgroup);
+                    attributionMap.put("creative", attribution.creative);
+                    attributionMap.put("clickLabel", attribution.clickLabel);
+                    attributionMap.put("adid", attribution.adid);
+                    MainActivity.testLibrary.sendInfoToServer(attributionMap);
+                }
+            });
+        }
+
         // XXX add listeners
     }
 
