@@ -5,10 +5,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,58 @@ public class UtilsNetworking {
     static ConnectionOptions connectionOptions;
     static TrustManager[] trustAllCerts;
     static HostnameVerifier hostnameVerifier;
-    static Type stringStringMap;
+
+    public static UtilsNetworking.HttpResponse sendPostI(String path) {
+        return sendPostI(path, null, null);
+    }
+
+    public static UtilsNetworking.HttpResponse sendPostI(String path, String clientSdk) {
+        return sendPostI(path, clientSdk, null);
+    }
+
+    public static UtilsNetworking.HttpResponse sendPostI(String path, String clientSdk, Map<String, String> postBody) {
+        String targetURL = TestLibrary.baseUrl + path;
+
+        try {
+            if (clientSdk != null) {
+                connectionOptions.clientSdk = clientSdk;
+            }
+            HttpsURLConnection connection = createPOSTHttpsURLConnection(
+                    targetURL, postBody, connectionOptions);
+            UtilsNetworking.HttpResponse httpResponse = readHttpResponse(connection);
+            debug("Response: %s", httpResponse.response);
+
+            httpResponse.headerFields= connection.getHeaderFields();
+            debug("Headers: %s", httpResponse.headerFields);
+
+            return httpResponse;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static String getPostDataString(Map<String, String> body) throws UnsupportedEncodingException {
+        StringBuilder result = new StringBuilder();
+
+        for (Map.Entry<String, String> entry : body.entrySet()) {
+            String encodedName = URLEncoder.encode(entry.getKey(), Constants.ENCODING);
+            String value = entry.getValue();
+            String encodedValue = value != null ? URLEncoder.encode(value, Constants.ENCODING) : "";
+
+            if (result.length() > 0) {
+                result.append("&");
+            }
+
+            result.append(encodedName);
+            result.append("=");
+            result.append(encodedValue);
+        }
+
+        return result.toString();
+    }
 
     static {
         trustAllCerts = new TrustManager[]{
@@ -100,9 +152,10 @@ public class UtilsNetworking {
     }
 
     static HttpsURLConnection createPOSTHttpsURLConnection(String urlString,
-                                                           String postData,
+                                                           Map<String, String> postBody,
                                                            IConnectionOptions connectionOptions)
-            throws IOException {
+            throws IOException
+    {
         DataOutputStream wr = null;
         HttpsURLConnection connection = null;
 
@@ -118,9 +171,9 @@ public class UtilsNetworking {
             connection.setDoInput(true);
             connection.setDoOutput(true);
 
-            if (postData != null && postData.length() > 0) {
+            if (postBody != null && postBody.size() > 0) {
                 wr = new DataOutputStream(connection.getOutputStream());
-                wr.writeBytes(postData);
+                wr.writeBytes(getPostDataString(postBody));
             }
 
             return connection;

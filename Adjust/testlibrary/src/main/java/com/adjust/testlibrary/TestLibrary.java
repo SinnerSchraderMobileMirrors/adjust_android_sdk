@@ -21,7 +21,7 @@ import static com.adjust.testlibrary.Constants.TEST_SESSION_END_HEADER;
 import static com.adjust.testlibrary.Constants.WAIT_FOR_CONTROL;
 import static com.adjust.testlibrary.Constants.WAIT_FOR_SLEEP;
 import static com.adjust.testlibrary.Utils.debug;
-import static com.adjust.testlibrary.Utils.sendPostI;
+import static com.adjust.testlibrary.UtilsNetworking.sendPostI;
 
 
 /**

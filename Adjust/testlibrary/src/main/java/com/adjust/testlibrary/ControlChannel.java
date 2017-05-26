@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import static com.adjust.testlibrary.Constants.TEST_CANCELTEST_HEADER;
 import static com.adjust.testlibrary.Constants.TEST_ENDWAIT_HEADER;
 import static com.adjust.testlibrary.Utils.debug;
-import static com.adjust.testlibrary.Utils.sendPostI;
+import static com.adjust.testlibrary.UtilsNetworking.sendPostI;
 
 /**
  * Created by nonelse on 21.03.17.
