@@ -9,8 +9,10 @@ import com.adjust.sdk.AdjustAttribution;
 import com.adjust.sdk.AdjustConfig;
 import com.adjust.sdk.AdjustEvent;
 import com.adjust.sdk.AdjustFactory;
+import com.adjust.sdk.AdjustSessionSuccess;
 import com.adjust.sdk.LogLevel;
 import com.adjust.sdk.OnAttributionChangedListener;
+import com.adjust.sdk.OnSessionTrackingSucceededListener;
 
 import java.util.HashMap;
 import java.util.List;
@@ -188,6 +190,21 @@ public class AdjustCommandExecutor {
                     attributionMap.put("clickLabel", attribution.clickLabel);
                     attributionMap.put("adid", attribution.adid);
                     MainActivity.testLibrary.sendInfoToServer(attributionMap);
+                }
+            });
+        }
+
+        if (command.containsParameter("sessionCallbackSendSuccess")) {
+            adjustConfig.setOnSessionTrackingSucceededListener(new OnSessionTrackingSucceededListener() {
+                @Override
+                public void onFinishedSessionTrackingSucceeded(AdjustSessionSuccess sessionSuccessResponseData) {
+                    Log.d("TestApp", "session_success = " + sessionSuccessResponseData.toString());
+                    Map<String, String> sessionSuccessDataMap = new HashMap<String, String>();
+                    sessionSuccessDataMap.put("message", sessionSuccessResponseData.message);
+                    sessionSuccessDataMap.put("timestamp", sessionSuccessResponseData.timestamp);
+                    sessionSuccessDataMap.put("adid", sessionSuccessResponseData.adid);
+                    sessionSuccessDataMap.put("jsonResponse", sessionSuccessResponseData.jsonResponse.toString());
+                    MainActivity.testLibrary.sendInfoToServer(sessionSuccessDataMap);
                 }
             });
         }
