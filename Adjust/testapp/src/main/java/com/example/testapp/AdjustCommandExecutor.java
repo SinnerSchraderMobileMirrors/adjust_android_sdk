@@ -211,11 +211,11 @@ public class AdjustCommandExecutor {
             });
         }
 
-        if (command.containsParameter("sessionCallbackSendFail")) {
+        if (command.containsParameter("sessionCallbackSendFailure")) {
             adjustConfig.setOnSessionTrackingFailedListener(new OnSessionTrackingFailedListener() {
                 @Override
                 public void onFinishedSessionTrackingFailed(AdjustSessionFailure sessionFailureResponseData) {
-                    Log.d("TestApp", "session_success = " + sessionFailureResponseData.toString());
+                    Log.d("TestApp", "session_fail = " + sessionFailureResponseData.toString());
                     Map<String, String> sessionFailureDataMap = new HashMap<String, String>();
                     sessionFailureDataMap.put("message", sessionFailureResponseData.message);
                     sessionFailureDataMap.put("timestamp", sessionFailureResponseData.timestamp);
