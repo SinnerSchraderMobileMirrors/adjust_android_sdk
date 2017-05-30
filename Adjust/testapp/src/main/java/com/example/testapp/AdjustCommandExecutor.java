@@ -224,6 +224,7 @@ public class AdjustCommandExecutor {
                     sessionFailureDataMap.put("message", sessionFailureResponseData.message);
                     sessionFailureDataMap.put("timestamp", sessionFailureResponseData.timestamp);
                     sessionFailureDataMap.put("adid", sessionFailureResponseData.adid);
+                    sessionFailureDataMap.put("willRetry", String.valueOf(sessionFailureResponseData.willRetry));
                     sessionFailureDataMap.put("jsonResponse", sessionFailureResponseData.jsonResponse.toString());
                     MainActivity.testLibrary.sendInfoToServer(sessionFailureDataMap);
                 }
