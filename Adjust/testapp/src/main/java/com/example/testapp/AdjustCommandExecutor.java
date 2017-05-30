@@ -8,11 +8,13 @@ import com.adjust.sdk.Adjust;
 import com.adjust.sdk.AdjustAttribution;
 import com.adjust.sdk.AdjustConfig;
 import com.adjust.sdk.AdjustEvent;
+import com.adjust.sdk.AdjustEventSuccess;
 import com.adjust.sdk.AdjustFactory;
 import com.adjust.sdk.AdjustSessionFailure;
 import com.adjust.sdk.AdjustSessionSuccess;
 import com.adjust.sdk.LogLevel;
 import com.adjust.sdk.OnAttributionChangedListener;
+import com.adjust.sdk.OnEventTrackingSucceededListener;
 import com.adjust.sdk.OnSessionTrackingFailedListener;
 import com.adjust.sdk.OnSessionTrackingSucceededListener;
 
@@ -222,6 +224,21 @@ public class AdjustCommandExecutor {
                     sessionFailureDataMap.put("adid", sessionFailureResponseData.adid);
                     sessionFailureDataMap.put("jsonResponse", sessionFailureResponseData.jsonResponse.toString());
                     MainActivity.testLibrary.sendInfoToServer(sessionFailureDataMap);
+                }
+            });
+        }
+
+        if (command.containsParameter("eventCallbackSendSuccess")) {
+            adjustConfig.setOnEventTrackingSucceededListener(new OnEventTrackingSucceededListener() {
+                @Override
+                public void onFinishedEventTrackingSucceeded(AdjustEventSuccess eventSuccessResponseData) {
+                    Log.d("TestApp", "event_success = " + eventSuccessResponseData.toString());
+                    Map<String, String> eventSuccessDataMap = new HashMap<String, String>();
+                    eventSuccessDataMap.put("message", eventSuccessResponseData.message);
+                    eventSuccessDataMap.put("timestamp", eventSuccessResponseData.timestamp);
+                    eventSuccessDataMap.put("adid", eventSuccessResponseData.adid);
+                    eventSuccessDataMap.put("jsonResponse", eventSuccessResponseData.jsonResponse.toString());
+                    MainActivity.testLibrary.sendInfoToServer(eventSuccessDataMap);
                 }
             });
         }
