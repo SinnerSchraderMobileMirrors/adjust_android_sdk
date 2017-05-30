@@ -8,12 +8,14 @@ import com.adjust.sdk.Adjust;
 import com.adjust.sdk.AdjustAttribution;
 import com.adjust.sdk.AdjustConfig;
 import com.adjust.sdk.AdjustEvent;
+import com.adjust.sdk.AdjustEventFailure;
 import com.adjust.sdk.AdjustEventSuccess;
 import com.adjust.sdk.AdjustFactory;
 import com.adjust.sdk.AdjustSessionFailure;
 import com.adjust.sdk.AdjustSessionSuccess;
 import com.adjust.sdk.LogLevel;
 import com.adjust.sdk.OnAttributionChangedListener;
+import com.adjust.sdk.OnEventTrackingFailedListener;
 import com.adjust.sdk.OnEventTrackingSucceededListener;
 import com.adjust.sdk.OnSessionTrackingFailedListener;
 import com.adjust.sdk.OnSessionTrackingSucceededListener;
@@ -237,13 +239,29 @@ public class AdjustCommandExecutor {
                     eventSuccessDataMap.put("message", eventSuccessResponseData.message);
                     eventSuccessDataMap.put("timestamp", eventSuccessResponseData.timestamp);
                     eventSuccessDataMap.put("adid", eventSuccessResponseData.adid);
+                    eventSuccessDataMap.put("eventToken", eventSuccessResponseData.eventToken);
                     eventSuccessDataMap.put("jsonResponse", eventSuccessResponseData.jsonResponse.toString());
                     MainActivity.testLibrary.sendInfoToServer(eventSuccessDataMap);
                 }
             });
         }
 
-        // XXX add listeners
+        if (command.containsParameter("eventCallbackSendFailure")) {
+            adjustConfig.setOnEventTrackingFailedListener(new OnEventTrackingFailedListener() {
+                @Override
+                public void onFinishedEventTrackingFailed(AdjustEventFailure eventFailureResponseData) {
+                    Log.d("TestApp", "event_fail = " + eventFailureResponseData.toString());
+                    Map<String, String> eventFailureDataMap = new HashMap<String, String>();
+                    eventFailureDataMap.put("message", eventFailureResponseData.message);
+                    eventFailureDataMap.put("timestamp", eventFailureResponseData.timestamp);
+                    eventFailureDataMap.put("adid", eventFailureResponseData.adid);
+                    eventFailureDataMap.put("eventToken", eventFailureResponseData.eventToken);
+                    eventFailureDataMap.put("willRetry", String.valueOf(eventFailureResponseData.willRetry));
+                    eventFailureDataMap.put("jsonResponse", eventFailureResponseData.jsonResponse.toString());
+                    MainActivity.testLibrary.sendInfoToServer(eventFailureDataMap);
+                }
+            });
+        }
     }
 
     private void start() {
