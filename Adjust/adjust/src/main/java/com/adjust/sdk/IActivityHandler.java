@@ -59,5 +59,9 @@ public interface IActivityHandler {
 
     Context getContext();
 
+    String getAdid();
+
+    AdjustAttribution getAttribution();
+
     String getBasePath();
 }
