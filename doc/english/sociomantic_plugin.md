@@ -3,7 +3,7 @@
 Add the dependency of the adjust sdk with the Sociomantic plugin:
 
 ```
-compile 'com.adjust.sdk:adjust-android-sociomantic:4.11.5'
+compile 'com.adjust.sdk:adjust-android-sociomantic:4.11.9'
 ```
 
 Or integrate adjust with Sociomantic events by following these steps:
