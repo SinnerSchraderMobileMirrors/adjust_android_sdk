@@ -226,25 +226,64 @@ public class UtilNetworking {
         }
 
         String sdkVersionName = "sdk_version";
-        String sdkVersion = clientSdk;
+        String sdkVersion = clientSdk != null ? clientSdk : "";
+
         String appVersionName = "app_version";
-        String appVersion = parameters.get(appVersionName);
+        String appVersion = parameters.get(appVersionName) != null ? parameters.get(appVersionName) : "";
+
         String activityKindName = "activity_kind";
+        String activityKindValue = activityKind != null ? activityKind : "";
 
         String createdAtName = "created_at";
-        String createdAt = parameters.get(createdAtName);
+        String createdAt = parameters.get(createdAtName) != null ? parameters.get(createdAtName) : "";
+
         String googleAdIdName = "gps_adid";
         String googleAdId = parameters.get(googleAdIdName);
 
+        String fireAdIdName = "fire_adid";
+        String fireAdId = parameters.get(fireAdIdName);
+
+        String androidIdName = "android_id";
+        String androidId = parameters.get(androidIdName);
+
+        String macSha1Name = "mac_sha1";
+        String macSha1 = parameters.get(macSha1Name);
+
+        String macMd5Name = "mac_md5";
+        String macMd5 = parameters.get(macMd5Name);
+
+        String deviceIdentifier = "";
+        String deviceIdentifierName = null;
+
+        if (googleAdId != null) {
+            deviceIdentifier = googleAdId;
+            deviceIdentifierName = googleAdIdName;
+        } else if (fireAdId != null) {
+            deviceIdentifier = fireAdId;
+            deviceIdentifierName = fireAdIdName;
+        } else if (androidId != null) {
+            deviceIdentifier = androidId;
+            deviceIdentifierName = androidIdName;
+        } else if (macSha1 != null) {
+            deviceIdentifier = macSha1;
+            deviceIdentifierName = macSha1Name;
+        } else if (macMd5 != null) {
+            deviceIdentifier = macMd5;
+            deviceIdentifierName = macMd5Name;
+        } else {
+            deviceIdentifier = "";
+            deviceIdentifierName = "gps_adid";
+        }
+
         String clearSignature = String.format("%s%s%s%s%s%s",
-                sdkVersion, appVersion, activityKind, createdAt, googleAdId, appSecret);
+                sdkVersion, appVersion, activityKind, createdAt, deviceIdentifier, appSecret);
 
         String signature = Util.md5(clearSignature);
 
         String algorithm = "md5";
 
         String fields = String.format("%s %s %s %s %s %s",
-                sdkVersionName, appVersionName, activityKindName, createdAtName, googleAdIdName, appSecretName);
+                sdkVersionName, appVersionName, activityKindName, createdAtName, deviceIdentifierName, appSecretName);
 
         parameters.remove("app_secret");
 
@@ -257,7 +296,6 @@ public class UtilNetworking {
         getLogger().verbose("authorizationHeader clear: %s", authorizationHeader);
         return authorizationHeader;
     }
-
 
     private static Uri buildUri(String path, Map<String, String> parameters) {
         Uri.Builder uriBuilder = new Uri.Builder();
