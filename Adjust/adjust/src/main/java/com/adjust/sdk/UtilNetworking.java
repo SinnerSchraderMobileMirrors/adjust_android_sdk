@@ -225,6 +225,29 @@ public class UtilNetworking {
             return null;
         }
 
+        Map<String, String> signatureDetails = getSignature(parameters, clientSdk, activityKind, appSecret);
+
+        String algorithm = "md5";
+        String signature = Util.md5(signatureDetails.get("clear_signature"));
+        String fields = signatureDetails.get("fields");
+
+        parameters.remove("app_secret");
+
+        String signatureHeader = String.format("signature=\"%s\"", signature);
+        String algorithmHeader = String.format("algorithm=\"%s\"", algorithm);
+        String fieldsHeader = String.format("headers=\"%s\"", fields);
+
+        String authorizationHeader = String.format("Signature %s,%s,%s", signatureHeader, algorithmHeader, fieldsHeader);
+        getLogger().verbose("authorizationHeader clear: %s", authorizationHeader);
+
+        return authorizationHeader;
+    }
+
+    private static Map<String, String> getSignature(
+            final Map<String, String> parameters,
+            final String clientSdk,
+            final String activityKind,
+            final String appSecret) {
         String sdkVersionName = "sdk_version";
         String sdkVersion = clientSdk != null ? clientSdk : "";
 
@@ -235,10 +258,10 @@ public class UtilNetworking {
         String activityKindValue = activityKind != null ? activityKind : "";
 
         String createdAtName = "created_at";
-        String createdAt = parameters.get(createdAtName) != null ? parameters.get(createdAtName) : "";
+        String createdAt = ""; // parameters.get(createdAtName) != null ? parameters.get(createdAtName) : "";
 
         String googleAdIdName = "gps_adid";
-        String googleAdId = parameters.get(googleAdIdName);
+        String googleAdId = null; // parameters.get(googleAdIdName);
 
         String fireAdIdName = "fire_adid";
         String fireAdId = parameters.get(fireAdIdName);
@@ -275,26 +298,34 @@ public class UtilNetworking {
             deviceIdentifierName = "gps_adid";
         }
 
-        String clearSignature = String.format("%s%s%s%s%s%s",
-                sdkVersion, appVersion, activityKind, createdAt, deviceIdentifier, appSecret);
+        Map<String, String> signatureParams = new HashMap<String, String>();
 
-        String signature = Util.md5(clearSignature);
+        signatureParams.put("app_secret", appSecret);
+        signatureParams.put(sdkVersionName, sdkVersion);
+        signatureParams.put(appVersionName, appVersion);
+        signatureParams.put(createdAtName, createdAt);
+        signatureParams.put(activityKindName, activityKindValue);
+        signatureParams.put(deviceIdentifierName, deviceIdentifier);
 
-        String algorithm = "md5";
+        String clearSignature = "";
+        String fields = "";
 
-        String fields = String.format("%s %s %s %s %s %s",
-                sdkVersionName, appVersionName, activityKindName, createdAtName, deviceIdentifierName, appSecretName);
+        for (Map.Entry<String, String> entry : signatureParams.entrySet())  {
+            if (entry.getValue() != null && !entry.getValue().isEmpty()) {
+                clearSignature += entry.getValue();
+                fields += entry.getKey() + " ";
+            }
+        }
 
-        parameters.remove("app_secret");
+        // Remove last empty space.
+        fields = fields.substring(0, fields.length() - 1);
 
-        String signatureHeader = String.format("signature=\"%s\"", signature);
-        String algorithmHeader = String.format("algorithm=\"%s\"", algorithm);
-        String fieldsHeader = String.format("headers=\"%s\"", fields);
+        HashMap<String, String> signature = new HashMap<String, String>();
 
-        String authorizationHeader = String.format("Signature %s,%s,%s", signatureHeader, algorithmHeader, fieldsHeader);
+        signature.put("clear_signature", clearSignature);
+        signature.put("fields", fields);
 
-        getLogger().verbose("authorizationHeader clear: %s", authorizationHeader);
-        return authorizationHeader;
+        return signature;
     }
 
     private static Uri buildUri(String path, Map<String, String> parameters) {
