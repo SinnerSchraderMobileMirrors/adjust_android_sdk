@@ -211,15 +211,6 @@ public class AdjustInstance {
             activityHandler.setExternalDeviceId(externalDeviceId);
             return;
         }
-        if (sessionParametersActionsArray == null) {
-            sessionParametersActionsArray = new ArrayList<IRunActivityHandler>();
-        }
-        sessionParametersActionsArray.add(new IRunActivityHandler() {
-            @Override
-            public void run(ActivityHandler activityHandler) {
-                activityHandler.setExternalDeviceIdI(externalDeviceId);
-            }
-        });
     }
 
     public void teardown(boolean deleteState) {
