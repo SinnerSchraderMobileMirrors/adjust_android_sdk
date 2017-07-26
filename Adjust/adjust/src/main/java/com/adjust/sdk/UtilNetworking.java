@@ -258,10 +258,10 @@ public class UtilNetworking {
         String activityKindValue = activityKind != null ? activityKind : "";
 
         String createdAtName = "created_at";
-        String createdAt = ""; // parameters.get(createdAtName) != null ? parameters.get(createdAtName) : "";
+        String createdAt = parameters.get(createdAtName) != null ? parameters.get(createdAtName) : "";
 
         String googleAdIdName = "gps_adid";
-        String googleAdId = null; // parameters.get(googleAdIdName);
+        String googleAdId = parameters.get(googleAdIdName);
 
         String fireAdIdName = "fire_adid";
         String fireAdId = parameters.get(fireAdIdName);
