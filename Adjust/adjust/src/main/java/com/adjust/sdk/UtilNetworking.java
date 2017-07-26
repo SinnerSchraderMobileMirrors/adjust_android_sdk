@@ -249,16 +249,16 @@ public class UtilNetworking {
             final String activityKind,
             final String appSecret) {
         String sdkVersionName = "sdk_version";
-        String sdkVersion = clientSdk != null ? clientSdk : "";
+        String sdkVersion = clientSdk;
 
         String appVersionName = "app_version";
-        String appVersion = parameters.get(appVersionName) != null ? parameters.get(appVersionName) : "";
+        String appVersion = parameters.get(appVersionName);
 
         String activityKindName = "activity_kind";
-        String activityKindValue = activityKind != null ? activityKind : "";
+        String activityKindValue = activityKind;
 
         String createdAtName = "created_at";
-        String createdAt = parameters.get(createdAtName) != null ? parameters.get(createdAtName) : "";
+        String createdAt = parameters.get(createdAtName);
 
         String googleAdIdName = "gps_adid";
         String googleAdId = parameters.get(googleAdIdName);
@@ -275,7 +275,7 @@ public class UtilNetworking {
         String macMd5Name = "mac_md5";
         String macMd5 = parameters.get(macMd5Name);
 
-        String deviceIdentifier = "";
+        String deviceIdentifier = null;
         String deviceIdentifierName = null;
 
         if (googleAdId != null) {
@@ -294,7 +294,7 @@ public class UtilNetworking {
             deviceIdentifier = macMd5;
             deviceIdentifierName = macMd5Name;
         } else {
-            deviceIdentifier = "";
+            deviceIdentifier = null;
             deviceIdentifierName = "gps_adid";
         }
 
@@ -307,13 +307,13 @@ public class UtilNetworking {
         signatureParams.put(activityKindName, activityKindValue);
         signatureParams.put(deviceIdentifierName, deviceIdentifier);
 
-        String clearSignature = "";
         String fields = "";
+        String clearSignature = "";
 
         for (Map.Entry<String, String> entry : signatureParams.entrySet())  {
-            if (entry.getValue() != null && !entry.getValue().isEmpty()) {
-                clearSignature += entry.getValue();
+            if (entry.getValue() != null) {
                 fields += entry.getKey() + " ";
+                clearSignature += entry.getValue();
             }
         }
 
