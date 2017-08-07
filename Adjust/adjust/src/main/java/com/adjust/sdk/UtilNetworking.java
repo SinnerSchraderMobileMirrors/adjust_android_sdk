@@ -44,7 +44,7 @@ public class UtilNetworking {
 
             String appSecret = extractAppSecret(parameters);
 
-            setDefaultHttpsUrlConnectionProperties(connection, activityPackage.getClientSdk());
+            connectionOptions.applyConnectionOptions(connection, activityPackage.getClientSdk());
             String authorizationHeader = buildAuthorizationHeader(parameters, appSecret, activityPackage.getClientSdk(), activityPackage.getActivityKind().toString());
 
             if (authorizationHeader != null) {
@@ -91,8 +91,6 @@ public class UtilNetworking {
             if (authorizationHeader != null) {
                 connection.setRequestProperty("Authorization", authorizationHeader);
             }
-
-            setDefaultHttpsUrlConnectionProperties(connection, activityPackage.getClientSdk());
 
             connection.setRequestMethod("GET");
 
